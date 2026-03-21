@@ -196,7 +196,12 @@ export default function CreateQuotationUser() {
         const { count } = await supabase
           .from("items")
           .select("*", { count: "exact", head: true });
-        if (!count) return;
+
+        // ✅ BUG FIX: If count is 0, stop loading!
+        if (!count) {
+          if (isMounted) setIsLoadingItems(false);
+          return;
+        }
 
         let allItems = [];
         const stepSize = 10000;
@@ -236,8 +241,19 @@ export default function CreateQuotationUser() {
           setItemsMaster(cleanedItems);
           setIsLoadingItems(false);
         }
+
+        try {
+          localStorage.setItem(
+            "erp_master_items",
+            JSON.stringify(cleanedItems),
+          );
+        } catch {
+          /* Ignore */
+        }
       } catch (err) {
         console.error("Background fetch failed", err);
+        // ✅ BUG FIX: Stop loading even if there is an error
+        if (isMounted) setIsLoadingItems(false);
       }
     }
 
@@ -301,8 +317,6 @@ export default function CreateQuotationUser() {
     if (!companyId) return alert("Please select a company");
     if (!myEmployeeId)
       return alert("System is loading your employee profile, please wait.");
-    if (isLoadingItems)
-      return alert("Please wait for items to load completely.");
 
     const selectedComp = companies.find((c) => c.id === companyId);
     let cgst = 0,
@@ -339,10 +353,10 @@ export default function CreateQuotationUser() {
         (item) => item.description && item.description.trim() !== "",
       ),
     };
+
     setPreviewDraftData(draft);
   }
 
-  // ✅ BULLETPROOF SAVE FUNCTION (Auto-Retries if the Database throws a 409 Duplicate Key Error)
   async function executeRealSave() {
     if (!companyId) return alert("Please select a company");
     if (!myEmployeeId)
@@ -441,7 +455,14 @@ export default function CreateQuotationUser() {
           ])
           .select()
           .single();
-        if (error) throw error;
+
+        if (error) {
+          if (error.code === "23505")
+            throw new Error(
+              "This quotation has already been revised. Refresh the page.",
+            );
+          throw error;
+        }
         finalId = newQuote.id;
       } else if (isEditMode) {
         const { error } = await supabase
@@ -452,12 +473,10 @@ export default function CreateQuotationUser() {
         finalId = id;
         await supabase.from("quotation_items").delete().eq("quotation_id", id);
       } else {
-        // ✅ AUTO-RETRY LOOP (Solves the "Admin has 6, User shows 4" Bug)
         let activeQuoteNo = quoteNo;
         let dbInsertError = null;
         let createdRecord = null;
 
-        // Try to save up to 10 times, incrementing the number if it hits a duplicate!
         for (let i = 0; i < 10; i++) {
           const { data, error } = await supabase
             .from("quotations")
@@ -468,26 +487,25 @@ export default function CreateQuotationUser() {
             .single();
 
           if (error) {
-            // 23505 is the PostgreSQL code for a Unique Constraint Violation (Duplicate Key)
             if (error.code === "23505") {
               const parts = activeQuoteNo.split("-");
               if (parts.length === 2) {
                 let num = parseInt(parts[1], 10);
                 activeQuoteNo = `${parts[0]}-${String(num + 1).padStart(parts[1].length, "0")}`;
                 dbInsertError = error;
-                continue; // 🔄 Loop again with the new number!
+                continue;
               }
             }
-            throw error; // If it's a different error, stop immediately
+            throw error;
           }
           createdRecord = data;
           dbInsertError = null;
-          break; // Success! Exit the loop.
+          break;
         }
 
         if (dbInsertError)
           throw new Error(
-            "Failed to secure a unique Quote number after multiple attempts. Please refresh.",
+            "Failed to secure a unique Quote number. Please refresh.",
           );
         finalId = createdRecord.id;
       }
@@ -607,7 +625,7 @@ export default function CreateQuotationUser() {
 
           <button
             onClick={handleTriggerPreview}
-            disabled={saving || isLoadingItems}
+            disabled={saving}
             className={styles.backBtn}
             style={{ display: "flex", alignItems: "center", gap: "6px" }}
           >
@@ -616,7 +634,7 @@ export default function CreateQuotationUser() {
 
           <button
             onClick={executeRealSave}
-            disabled={saving || isLoadingItems}
+            disabled={saving}
             className={styles.saveBtn}
             style={{ display: "flex", alignItems: "center", gap: "6px" }}
           >
@@ -786,6 +804,7 @@ export default function CreateQuotationUser() {
                     )
                     .slice(0, 50)
                 : itemsMaster.slice(0, 50);
+
               const searchDesc = item.description
                 ? item.description.toLowerCase()
                 : "";
@@ -803,6 +822,7 @@ export default function CreateQuotationUser() {
 
               return (
                 <tr key={idx}>
+                  {/* ✅ REMOVED disabled={isLoadingItems} */}
                   <td>
                     <input
                       list={`codes-${idx}`}
@@ -813,7 +833,6 @@ export default function CreateQuotationUser() {
                         updateItem(idx, "item_code", e.target.value)
                       }
                       className={styles.tableInput}
-                      disabled={isLoadingItems}
                     />
                     <datalist id={`codes-${idx}`}>
                       {matchingCodes.map((m) => (
@@ -835,7 +854,6 @@ export default function CreateQuotationUser() {
                         updateItem(idx, "description", e.target.value)
                       }
                       className={styles.tableInput}
-                      disabled={isLoadingItems}
                     />
                     <datalist id={`desc-${idx}`}>
                       {matchingDesc.map((m) => (
