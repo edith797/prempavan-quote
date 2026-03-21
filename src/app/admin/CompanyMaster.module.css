@@ -1,0 +1,408 @@
+/* CompanyMaster.module.css */
+
+/* =========================================
+   1. PAGE LAYOUT
+   ========================================= */
+.container {
+  width: 100%;
+  max-width: 100%;
+  padding: 0 10px;
+  box-sizing: border-box;
+  animation: fadeIn 0.4s ease-out;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* --- Top Row: Title Left, Button Right --- */
+.topRow {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+  margin-bottom: 24px;
+  flex-wrap: wrap;
+  gap: 15px;
+  border-bottom: 1px solid #e2e8f0;
+  padding-bottom: 15px;
+}
+
+.titleGroup h1 {
+  font-size: 26px;
+  font-weight: 800;
+  color: #0f172a; /* Slate 900 */
+  margin: 0;
+  letter-spacing: -0.5px;
+}
+
+.subtitle {
+  color: #64748b; /* Slate 500 */
+  margin: 4px 0 0 0;
+  font-size: 14px;
+  font-weight: 500;
+}
+
+/* --- Action Area (Search Row) --- */
+.searchRow {
+  margin-bottom: 24px;
+  width: 100%;
+  display: flex;
+  justify-content: flex-start;
+}
+
+.searchWrapper {
+  position: relative;
+  width: 100%;
+  max-width: 360px; /* Slightly wider */
+}
+
+.searchIcon {
+  position: absolute;
+  left: 14px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: #94a3b8;
+  pointer-events: none;
+}
+
+.searchInput {
+  width: 100%;
+  padding: 12px 12px 12px 44px;
+  border-radius: 8px;
+  border: 1px solid #cbd5e1;
+  font-size: 14px;
+  outline: none;
+  background-color: #fff;
+  transition: all 0.2s ease;
+  height: 44px;
+  color: #0f172a;
+}
+
+.searchInput:focus {
+  border-color: #f59e0b; /* Brand Orange */
+  box-shadow: 0 0 0 3px rgba(245, 158, 11, 0.1);
+}
+
+/* --- Add Button (Tech Theme) --- */
+.addButton {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(
+    135deg,
+    #0f172a 0%,
+    #1e293b 100%
+  ); /* Dark Slate Gradient */
+  color: #fff;
+  border: 1px solid #334155;
+  padding: 0 24px;
+  border-radius: 8px;
+  cursor: pointer;
+  font-weight: 700;
+  font-size: 14px;
+  height: 44px;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+  transition: all 0.2s ease;
+  white-space: nowrap;
+}
+
+.addButton:hover {
+  transform: translateY(-1px);
+  background: #000;
+  border-color: #f59e0b; /* Glow effect on hover */
+  color: #f59e0b;
+}
+
+.addButton:active {
+  transform: translateY(0);
+}
+
+/* --- Table Styling --- */
+.tableContainer {
+  background-color: #fff;
+  border-radius: 12px;
+  box-shadow:
+    0 4px 6px -1px rgba(0, 0, 0, 0.05),
+    0 2px 4px -1px rgba(0, 0, 0, 0.03);
+  border: 1px solid #e2e8f0;
+
+  /* Responsive Scroll */
+  overflow-x: auto;
+  width: 100%;
+  -webkit-overflow-scrolling: touch;
+}
+
+.table {
+  width: 100%;
+  border-collapse: collapse;
+  min-width: 650px; /* Ensures text doesn't wrap awkwardly on mobile */
+}
+
+.th {
+  padding: 16px 24px;
+  font-size: 11px;
+  font-weight: 700;
+  color: #64748b;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  background-color: #f8fafc;
+  border-bottom: 1px solid #e2e8f0;
+  text-align: left;
+}
+
+.tr {
+  border-bottom: 1px solid #f1f5f9;
+  transition: background-color 0.15s ease;
+}
+.tr:hover {
+  background-color: #fffbeb; /* Very subtle amber tint */
+}
+.tr:last-child {
+  border-bottom: none;
+}
+
+.td {
+  padding: 16px 24px;
+  font-size: 14px;
+  color: #334155;
+  vertical-align: middle;
+}
+
+/* --- Cell Content --- */
+.cellContent {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+.iconCircle {
+  width: 38px;
+  height: 38px;
+  border-radius: 8px;
+  background-color: #fff7ed; /* Light Amber */
+  color: #d97706; /* Dark Amber */
+  border: 1px solid #ffedd5;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.companyNameText {
+  font-weight: 700;
+  color: #0f172a;
+  font-size: 14px;
+}
+
+.addressText {
+  color: #64748b;
+  font-size: 13px;
+  line-height: 1.4;
+}
+
+.emptyState {
+  text-align: center;
+  padding: 80px;
+  color: #94a3b8;
+  font-style: italic;
+  font-size: 15px;
+}
+
+/* =========================================
+   2. MODAL (Mobile Responsive)
+   ========================================= */
+.overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(15, 23, 42, 0.6); /* Darker overlay */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  padding: 15px;
+  backdrop-filter: blur(4px);
+}
+
+.modal {
+  background-color: #fff;
+  width: 100%;
+  max-width: 480px;
+  border-radius: 16px;
+  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  max-height: 90vh; /* Prevent modal from being taller than screen */
+  animation: modalSlideUp 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+@keyframes modalSlideUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px) scale(0.96);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+.modalHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 20px 24px;
+  border-bottom: 1px solid #f1f5f9;
+  background-color: #fff;
+}
+
+.modalTitle {
+  margin: 0;
+  font-size: 18px;
+  font-weight: 800;
+  color: #0f172a;
+}
+
+.closeBtn {
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  color: #94a3b8;
+  padding: 8px;
+  border-radius: 6px;
+  transition: all 0.2s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.closeBtn:hover {
+  background-color: #f1f5f9;
+  color: #ef4444;
+}
+
+.modalForm {
+  padding: 24px;
+  overflow-y: auto; /* Scroll inside modal if form is long */
+}
+
+.label {
+  display: block;
+  margin-bottom: 8px;
+  font-size: 12px;
+  font-weight: 700;
+  color: #475569;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.input {
+  width: 100%;
+  padding: 12px;
+  margin-bottom: 20px;
+  border-radius: 8px;
+  border: 1px solid #cbd5e1;
+  font-size: 14px;
+  box-sizing: border-box;
+  transition: all 0.2s;
+  background-color: #f8fafc;
+}
+.input:focus {
+  outline: none;
+  border-color: #f59e0b;
+  background-color: #fff;
+  box-shadow: 0 0 0 3px rgba(245, 158, 11, 0.1);
+}
+
+.textarea {
+  height: 100px;
+  resize: vertical;
+  font-family: inherit;
+}
+
+.modalFooter {
+  display: flex;
+  justify-content: flex-end;
+  gap: 12px;
+  margin-top: 10px;
+  padding-top: 20px;
+  border-top: 1px solid #f1f5f9;
+}
+
+.cancelBtn {
+  padding: 10px 20px;
+  background-color: #fff;
+  border: 1px solid #cbd5e1;
+  border-radius: 8px;
+  cursor: pointer;
+  font-weight: 600;
+  color: #64748b;
+  transition: background 0.2s;
+}
+.cancelBtn:hover {
+  background-color: #f1f5f9;
+  color: #0f172a;
+}
+
+.saveBtn {
+  padding: 10px 24px;
+  background-color: #0f172a;
+  color: #fff;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  font-weight: 700;
+  transition: background 0.2s;
+}
+.saveBtn:hover {
+  background-color: #f59e0b; /* Brand highlight */
+  color: #fff;
+}
+
+/* =========================================
+   3. MOBILE RESPONSIVENESS
+   ========================================= */
+@media (max-width: 768px) {
+  .topRow {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 15px;
+  }
+
+  .titleGroup {
+    width: 100%;
+  }
+
+  .addButton {
+    width: 100%;
+  }
+
+  .searchWrapper {
+    max-width: 100%;
+  }
+
+  /* Make table cell content stack vertically on very small screens if needed */
+  .cellContent {
+    gap: 10px;
+  }
+
+  /* Modal adjustments for mobile */
+  .modal {
+    position: fixed;
+    bottom: 0;
+    max-width: 100%;
+    border-bottom-left-radius: 0;
+    border-bottom-right-radius: 0;
+    margin: 0;
+    max-height: 85vh; /* Drawer style */
+  }
+}

@@ -1,0 +1,59 @@
+/* src/app/admin/AdminLayout.css */
+
+.admin-layout {
+  display: flex;
+  height: 100vh; /* Fallback */
+  height: 100dvh; /* ⚡ Fix for mobile browsers */
+  overflow: hidden; /* Prevents double scrollbars */
+  width: 100%;
+  background-color: #f3f4f6; /* Modern Dashboard Grey (matches your other components) */
+}
+
+/* Sidebar Wrapper - Controls the space occupied by sidebar */
+.sidebar-wrapper {
+  height: 100%;
+  flex-shrink: 0;
+  transition: width 0.3s cubic-bezier(0.4, 0, 0.2, 1); /* Smoother animation */
+  background-color: #111827; /* Prevents white flash during resize */
+}
+
+/* Desktop Widths */
+.sidebar-wrapper.open {
+  width: 240px;
+}
+
+.sidebar-wrapper.closed {
+  width: 70px;
+}
+
+/* Main Content Area */
+.main-content {
+  flex: 1;
+  padding: 32px; /* Breathing room */
+  overflow-y: auto; /* Scroll ONLY inside content */
+  overflow-x: hidden;
+  position: relative;
+
+  /* Smooth scroll behavior */
+  scroll-behavior: smooth;
+  -webkit-overflow-scrolling: touch;
+}
+
+/* --- MOBILE RESPONSIVE RULES --- */
+@media (max-width: 768px) {
+  /* On mobile, the Sidebar becomes "Fixed/Floating" (handled in Sidebar.css).
+     So this wrapper must NOT take up any physical space in the flex layout.
+  */
+  .sidebar-wrapper,
+  .sidebar-wrapper.open,
+  .sidebar-wrapper.closed {
+    width: 0 !important;
+    overflow: visible; /* Allow fixed sidebar to overflow out */
+  }
+
+  .main-content {
+    padding: 20px 16px; /* Compact padding for mobile */
+    padding-top: 60px; /* Space for the Mobile Toggle Button */
+    width: 100%;
+  }
+}

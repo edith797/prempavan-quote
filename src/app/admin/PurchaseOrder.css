@@ -1,0 +1,520 @@
+/* ============================================================
+   PURCHASE ORDER — Premium Professional Theme
+   Matches QuotationPreview aesthetic
+   Font: Playfair Display (display) + DM Sans (body)
+   Palette: Deep navy #0f1a2e, warm cream #fffef9, gold #b49448
+   ============================================================ */
+
+@import url("https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700;900&family=DM+Sans:wght@300;400;500;600;700&display=swap");
+
+/* --- 1. Screen Container --- */
+.po-screen-container {
+  background: #f4f3ee;
+  background-image:
+    radial-gradient(
+      ellipse at 20% 0%,
+      rgba(180, 148, 72, 0.08) 0%,
+      transparent 60%
+    ),
+    radial-gradient(
+      ellipse at 80% 100%,
+      rgba(30, 58, 100, 0.4) 0%,
+      transparent 60%
+    );
+  min-height: 100vh;
+  padding: 48px 20px 64px;
+  font-family: "DM Sans", sans-serif;
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+/* --- 2. Action Bar --- */
+.po-action-bar {
+  width: 100%;
+  max-width: 1100px;
+  margin-bottom: 24px;
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  position: sticky;
+  top: 10px;
+  z-index: 50;
+}
+
+.po-btn {
+  padding: 10px 20px;
+  border-radius: 4px;
+  cursor: pointer;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 13px;
+  font-family: "DM Sans", sans-serif;
+  letter-spacing: 0.3px;
+  transition: all 0.18s ease;
+  border: none;
+}
+
+.po-btn-back {
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  color: #d4c9b0;
+  box-shadow: none;
+}
+.po-btn-back:hover {
+  background: rgba(255, 255, 255, 0.14);
+  transform: translateY(-1px);
+}
+
+.po-btn-save {
+  background: #b49448;
+  color: #fff;
+  box-shadow: 0 2px 8px rgba(180, 148, 72, 0.3);
+}
+.po-btn-save:hover {
+  background: #9c7e38;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 14px rgba(180, 148, 72, 0.4);
+}
+
+.po-btn-print {
+  background: rgba(15, 26, 46, 0.9);
+  border: 1px solid rgba(180, 148, 72, 0.4);
+  color: #e8d99a;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+}
+.po-btn-print:hover {
+  background: #0f1a2e;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.4);
+}
+
+/* --- 3. Paper --- */
+.po-paper {
+  background: #fffef9;
+  width: 100%;
+  max-width: 1100px;
+  padding: 36px 40px 32px;
+  box-shadow:
+    0 2px 4px rgba(0, 0, 0, 0.04),
+    0 8px 32px rgba(0, 0, 0, 0.28),
+    0 0 0 1px rgba(255, 255, 255, 0.04);
+  border-radius: 0;
+  border-top: 5px solid #b49448;
+  color: #0f1a2e;
+  display: flex;
+  flex-direction: column;
+  font-family: "DM Sans", sans-serif;
+}
+
+/* --- 4. Master Print Table --- */
+.master-print-table {
+  width: 100%;
+  border-collapse: collapse;
+  border: none;
+}
+.master-print-table > thead > tr > td,
+.master-print-table > tbody > tr > td,
+.master-print-table > tfoot > tr > td {
+  padding: 0;
+  border: none;
+}
+
+/* --- 5. Inputs --- */
+.po-input {
+  width: 100%;
+  border: 1px solid transparent;
+  background: transparent;
+  outline: none;
+  font-family: "DM Sans", sans-serif;
+  font-size: 11px;
+  line-height: 1.6;
+  padding: 4px 6px;
+  border-radius: 3px;
+  color: #0f1a2e;
+  box-sizing: border-box;
+  transition:
+    background 0.15s,
+    border-color 0.15s;
+}
+.po-input:hover {
+  background-color: #faf8f2;
+  border-color: #d4c9b0;
+}
+.po-input:focus {
+  border-color: #b49448;
+  background: #fff;
+  box-shadow: 0 0 0 2px rgba(180, 148, 72, 0.12);
+}
+.po-input.bold {
+  font-weight: 700;
+}
+.po-input.mono {
+  font-family: "Courier New", monospace;
+  letter-spacing: 0.5px;
+}
+.po-input.right {
+  text-align: right;
+}
+.po-input.center {
+  text-align: center;
+}
+.po-input.italic {
+  font-style: italic;
+  color: #64748b;
+}
+
+/* --- 6. Header --- */
+.po-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding-bottom: 18px;
+  margin-bottom: 20px;
+  border-bottom: 2.5px solid #0f1a2e;
+  position: relative;
+}
+.po-header::after {
+  content: "";
+  display: block;
+  position: absolute;
+  bottom: -5px;
+  left: 0;
+  right: 0;
+  height: 1px;
+  background: #b49448;
+}
+
+.po-logo-section {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+}
+.po-logo-box img {
+  max-height: 72px;
+  object-fit: contain;
+}
+
+.po-company-info h1 {
+  font-family: "Playfair Display", serif;
+  font-size: 18px;
+  font-weight: 900;
+  margin: 0 0 4px 0;
+  color: #0f1a2e;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+.po-company-info p {
+  font-size: 10.5px;
+  margin: 2px 0;
+  color: #4a4a4a;
+  font-weight: 400;
+  line-height: 1.5;
+}
+
+.po-title-section h2 {
+  font-family: "Playfair Display", serif;
+  font-size: 26px;
+  text-align: right;
+  margin: 0;
+  line-height: 1.1;
+  font-weight: 900;
+  color: #0f1a2e;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+}
+
+/* --- 7. Info Grid --- */
+.po-info-grid {
+  display: grid;
+  grid-template-columns: 1.2fr 0.8fr;
+  gap: 40px;
+  margin-bottom: 20px;
+}
+
+.po-section-title {
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: 2.5px;
+  color: #b49448;
+  text-transform: uppercase;
+  border-bottom: 1.5px solid #b49448;
+  margin-bottom: 10px;
+  padding-bottom: 4px;
+  font-family: "DM Sans", sans-serif;
+}
+
+/* Vendor Search */
+.vendor-search-container {
+  position: relative;
+  margin-bottom: 8px;
+}
+.search-input-wrapper {
+  position: relative;
+}
+.vendor-dropdown {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  right: 0;
+  background: #fff;
+  border: 1px solid #d4c9b0;
+  z-index: 50;
+  max-height: 200px;
+  overflow-y: auto;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
+  border-radius: 0 0 4px 4px;
+}
+.vendor-option {
+  padding: 8px 12px;
+  cursor: pointer;
+  border-bottom: 1px solid #f5f1e8;
+  transition: background 0.12s;
+}
+.vendor-option:hover {
+  background-color: #faf8f2;
+}
+
+.po-vendor-name {
+  font-size: 14px;
+  font-weight: 800;
+  margin-bottom: 4px;
+  color: #0f1a2e;
+  letter-spacing: 0.3px;
+}
+.po-vendor-addr {
+  font-size: 11px;
+  white-space: pre-wrap;
+  line-height: 1.6;
+  color: #555;
+}
+
+.po-detail-row {
+  display: grid;
+  grid-template-columns: 90px 1fr;
+  margin-bottom: 2px;
+  align-items: center;
+}
+.po-label {
+  font-size: 9.5px;
+  font-weight: 700;
+  color: #888;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+}
+
+/* --- 8. Table --- */
+.po-table-container {
+  margin-top: 20px;
+  margin-bottom: 20px;
+}
+
+.po-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 11px;
+  table-layout: fixed;
+  font-family: "DM Sans", sans-serif;
+  border: 1px solid #ccc4a8;
+}
+
+.po-table thead tr {
+  background: #0f1a2e;
+}
+.po-table th {
+  background: #0f1a2e !important;
+  color: #e8d99a !important;
+  padding: 9px 8px;
+  text-transform: uppercase;
+  font-size: 9px;
+  font-weight: 600;
+  letter-spacing: 0.8px;
+  border: 1px solid #253450;
+  text-align: left;
+}
+
+.po-table tbody tr:nth-child(even) {
+  background-color: #faf8f2;
+}
+.po-table tbody tr:nth-child(odd) {
+  background-color: #fffef9;
+}
+.po-table td {
+  border: 1px solid #ddd5bb;
+  padding: 2px 3px;
+  vertical-align: top;
+  color: #1a1a1a;
+}
+
+.right {
+  text-align: right;
+}
+.bold {
+  font-weight: 700;
+}
+.center {
+  text-align: center;
+}
+
+/* Delete button */
+.po-del-btn {
+  background: none;
+  border: none;
+  color: #c4b99a;
+  cursor: pointer;
+  padding: 4px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  transition: color 0.15s;
+}
+.po-del-btn:hover {
+  color: #ef4444;
+}
+
+/* Add row button */
+.po-add-row-btn {
+  width: 100%;
+  padding: 8px;
+  margin-top: 10px;
+  border: 1px dashed #d4c9b0;
+  background: #faf8f2;
+  font-weight: 700;
+  cursor: pointer;
+  text-transform: uppercase;
+  font-size: 11px;
+  letter-spacing: 1px;
+  border-radius: 3px;
+  color: #b49448;
+  font-family: "DM Sans", sans-serif;
+  transition:
+    background 0.15s,
+    border-color 0.15s;
+}
+.po-add-row-btn:hover {
+  background: #f5f0e4;
+  border-color: #b49448;
+}
+
+/* --- 9. Footer --- */
+.po-footer {
+  margin-top: 32px;
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+  border-top: 1px solid #ddd5bb;
+  padding-top: 20px;
+}
+
+.po-sign-section {
+  width: 180px;
+  text-align: center;
+}
+.po-sign-box {
+  border-top: 1.5px solid #0f1a2e;
+  padding-top: 8px;
+}
+.po-sign-box p {
+  font-size: 9px;
+  font-weight: 700;
+  margin: 0;
+  color: #b49448;
+  text-transform: uppercase;
+  letter-spacing: 1.5px;
+}
+.po-sign-name {
+  font-family: "Playfair Display", serif;
+  font-size: 13px;
+  font-weight: 700;
+  margin-top: 4px;
+  color: #0f1a2e;
+  letter-spacing: 0.5px;
+}
+
+/* Totals */
+.po-totals-box {
+  display: flex;
+  justify-content: flex-end;
+}
+.po-total-row {
+  display: flex;
+  justify-content: space-between;
+  width: 280px;
+  padding: 7px 0;
+  border-bottom: 1px solid #e8e0ce;
+  gap: 24px;
+}
+.po-total-row:last-child {
+  border-bottom: none;
+}
+.po-total-label {
+  font-size: 10px;
+  font-weight: 700;
+  color: #888;
+  text-transform: uppercase;
+  letter-spacing: 0.8px;
+}
+.po-total-value {
+  font-size: 13px;
+  font-weight: 600;
+  color: #0f1a2e;
+}
+
+.po-grand-total {
+  border-top: 2px solid #b49448;
+  margin-top: 4px;
+  border-bottom: none;
+  padding-top: 10px;
+  background: transparent;
+}
+.po-grand-total .po-total-label {
+  color: #0f1a2e;
+  font-size: 11px;
+}
+.po-grand-total .po-total-value {
+  font-family: "Playfair Display", serif;
+  font-size: 22px;
+  font-weight: 700;
+  color: #0f1a2e;
+}
+
+/* --- 10. Loading --- */
+.po-screen-container > div.p-10 {
+  color: #b49448;
+  font-family: "DM Sans", sans-serif;
+  font-size: 15px;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+}
+
+/* --- 11. Print Overrides --- */
+@media print {
+  .po-screen-container {
+    background: #fff !important;
+    padding: 0 !important;
+  }
+  .po-paper {
+    box-shadow: none !important;
+    border-top: 5px solid #b49448 !important;
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+  .po-table th {
+    background: #0f1a2e !important;
+    color: #e8d99a !important;
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+  .po-table tbody tr:nth-child(even) td {
+    background-color: #faf8f2 !important;
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+  .no-print {
+    display: none !important;
+  }
+}

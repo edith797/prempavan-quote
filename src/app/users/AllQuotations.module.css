@@ -1,0 +1,357 @@
+/* AllQuotations.module.css */
+
+/* =========================================
+   1. PAGE LAYOUT
+   ========================================= */
+.container {
+  width: 100%;
+  max-width: 100%; /* Utilize full width */
+  margin: 0;
+  padding: 0 10px; /* Small breathing room */
+  box-sizing: border-box;
+  animation: fadeIn 0.4s ease-out;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(5px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end; /* Align to bottom of text */
+  margin-bottom: 24px;
+  flex-wrap: wrap;
+  gap: 15px;
+  border-bottom: 1px solid #e2e8f0;
+  padding-bottom: 15px;
+}
+
+.title {
+  font-size: 26px;
+  font-weight: 800;
+  color: #0f172a; /* Slate 900 */
+  margin: 0;
+  letter-spacing: -0.5px;
+}
+
+.subtitle {
+  color: #64748b; /* Slate 500 */
+  margin: 4px 0 0 0;
+  font-size: 14px;
+  font-weight: 500;
+}
+
+/* =========================================
+   2. ACTIONS BAR (Search, Filter, Create)
+   ========================================= */
+.actionsBar {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 24px;
+  flex-wrap: wrap;
+}
+
+.searchWrapper {
+  position: relative;
+  flex: 2; /* Takes up more space than filter */
+  min-width: 280px;
+}
+
+.searchIcon {
+  position: absolute;
+  left: 14px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: #94a3b8;
+  pointer-events: none;
+}
+
+.searchInput {
+  width: 100%;
+  padding: 10px 10px 10px 42px;
+  border: 1px solid #cbd5e1; /* Slate 300 */
+  border-radius: 8px;
+  font-size: 14px;
+  box-sizing: border-box;
+  transition: all 0.2s;
+  height: 44px; /* Comfortable touch target */
+  background-color: #fff;
+  color: #0f172a;
+}
+
+.searchInput:focus {
+  outline: none;
+  border-color: #f59e0b; /* Brand Orange */
+  box-shadow: 0 0 0 3px rgba(245, 158, 11, 0.1);
+}
+
+.filterWrapper {
+  position: relative;
+  min-width: 180px;
+  flex: 1;
+}
+
+.filterSelect {
+  width: 100%;
+  padding: 10px 36px 10px 14px;
+  border: 1px solid #cbd5e1;
+  border-radius: 8px;
+  font-size: 14px;
+  background-color: #fff;
+  color: #334155;
+  cursor: pointer;
+  appearance: none;
+  /* Custom Chevron Arrow */
+  background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%2364748b' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='M6 8l4 4 4-4'/%3e%3c/svg%3e");
+  background-position: right 0.75rem center;
+  background-repeat: no-repeat;
+  background-size: 1.25em 1.25em;
+  height: 44px;
+}
+
+.filterSelect:focus {
+  outline: none;
+  border-color: #f59e0b;
+}
+
+.createButton {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(
+    135deg,
+    #f59e0b 0%,
+    #d97706 100%
+  ); /* Gradient Button */
+  color: #fff;
+  border: none;
+  padding: 0 24px;
+  height: 44px;
+  border-radius: 8px;
+  cursor: pointer;
+  font-weight: 700;
+  font-size: 14px;
+  box-shadow: 0 4px 6px -1px rgba(245, 158, 11, 0.3);
+  transition: all 0.2s ease;
+  white-space: nowrap;
+  margin-left: auto;
+}
+
+.createButton:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 6px 10px -2px rgba(245, 158, 11, 0.4);
+}
+
+.createButton:active {
+  transform: translateY(0);
+}
+
+/* =========================================
+   3. RESPONSIVE TABLE (The Critical Part)
+   ========================================= */
+.tableContainer {
+  background-color: #fff;
+  border-radius: 12px;
+  box-shadow:
+    0 4px 6px -1px rgba(0, 0, 0, 0.05),
+    0 2px 4px -1px rgba(0, 0, 0, 0.03);
+  border: 1px solid #e2e8f0;
+  overflow: hidden; /* Rounded corners clip content */
+
+  /* Horizontal Scroll for Mobile */
+  overflow-x: auto;
+  width: 100%;
+  -webkit-overflow-scrolling: touch;
+}
+
+.table {
+  width: 100%;
+  border-collapse: collapse;
+  text-align: left;
+  min-width: 900px; /* Forces scroll on small screens so cols aren't crushed */
+}
+
+.th {
+  padding: 16px 20px;
+  font-size: 11px;
+  font-weight: 700;
+  color: #64748b;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  background-color: #f8fafc; /* Very light slate */
+  border-bottom: 1px solid #e2e8f0;
+  white-space: nowrap;
+
+  /* Sticky Header */
+  position: sticky;
+  top: 0;
+  z-index: 10;
+}
+
+.tr {
+  border-bottom: 1px solid #f1f5f9;
+  transition: background-color 0.15s ease;
+}
+
+.tr:hover {
+  background-color: #f8fafc; /* Highlight row on hover */
+}
+
+.tr:last-child {
+  border-bottom: none;
+}
+
+.td {
+  padding: 16px 20px;
+  font-size: 14px;
+  color: #334155; /* Slate 700 */
+  vertical-align: middle;
+  white-space: nowrap;
+  font-weight: 500;
+}
+
+/* =========================================
+   4. ACTION BUTTONS 
+   ========================================= */
+.actionsCell {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 8px;
+}
+
+.actionBtn {
+  background: transparent;
+  border: 1px solid transparent;
+  padding: 6px;
+  border-radius: 6px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s;
+  color: #94a3b8;
+}
+
+/* Edit: Blue */
+.actionBtn:hover {
+  background-color: #eff6ff;
+  color: #3b82f6;
+}
+
+/* Delete: Red (Icon context aware) */
+.actionBtn.delete:hover,
+.actionBtn:hover:has(svg.text-red-500) {
+  background-color: #fef2f2;
+  color: #ef4444;
+}
+
+/* =========================================
+   5. STATUS BADGES & CONTENT
+   ========================================= */
+.cellContent {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.iconCircle {
+  width: 36px;
+  height: 36px;
+  border-radius: 8px; /* Slightly squarer modern look */
+  background-color: #fff7ed;
+  color: #d97706;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.companyName {
+  font-weight: 600;
+  color: #0f172a;
+}
+
+.amount {
+  font-weight: 700;
+  color: #059669;
+  font-variant-numeric: tabular-nums;
+}
+
+.dateText {
+  color: #64748b;
+  font-size: 13px;
+}
+
+/* Status Specifics */
+.APPROVED {
+  color: #166534;
+  font-weight: 700;
+}
+.REJECTED {
+  color: #991b1b;
+  font-weight: 700;
+}
+.DRAFT {
+  color: #92400e;
+  font-weight: 700;
+}
+
+.emptyState {
+  text-align: center;
+  padding: 80px 20px;
+  color: #94a3b8;
+  font-style: italic;
+}
+
+/* =========================================
+   6. MOBILE RESPONSIVENESS
+   ========================================= */
+@media (max-width: 768px) {
+  .container {
+    padding: 0; /* Remove side padding on mobile for full width table */
+  }
+
+  .header {
+    padding: 0 15px 15px 15px; /* Add padding back to header */
+    margin-bottom: 20px;
+  }
+
+  .actionsBar {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 10px;
+    padding: 0 15px; /* Add padding to controls */
+    margin-bottom: 20px;
+  }
+
+  .searchWrapper,
+  .filterWrapper,
+  .createButton {
+    width: 100%;
+    min-width: 0;
+    margin-left: 0;
+  }
+
+  .createButton {
+    margin-top: 5px;
+    height: 48px; /* Larger tap target */
+  }
+
+  /* Make table scroll hint visible */
+  .tableContainer {
+    border-radius: 0; /* Full width on mobile */
+    border-left: none;
+    border-right: none;
+    box-shadow: none;
+  }
+}

@@ -1,0 +1,656 @@
+/* ============================================================
+   QUOTATION PREVIEW — Premium Professional Theme
+   Font: Playfair Display (display) + DM Sans (body)
+   Palette: Deep navy, warm cream, gold accent
+   ============================================================ */
+
+@import url("https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700;900&family=DM+Sans:wght@300;400;500;600;700&display=swap");
+
+/* --- 1. Global Page Layout --- */
+.quotation-body {
+  background: #eaeaec;
+  background-image:
+    radial-gradient(
+      ellipse at 20% 0%,
+      rgba(180, 148, 72, 0.08) 0%,
+      transparent 60%
+    ),
+    radial-gradient(
+      ellipse at 80% 100%,
+      rgba(30, 58, 100, 0.4) 0%,
+      transparent 60%
+    );
+  min-height: 100vh;
+  padding: 48px 0 64px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  font-family: "DM Sans", sans-serif;
+  color: #000;
+}
+
+/* --- 2. Action Bar --- */
+.action-bar {
+  width: 210mm;
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 24px;
+}
+
+.btn {
+  background: #b49448;
+  color: #fff;
+  border: none;
+  padding: 10px 22px;
+  border-radius: 4px;
+  cursor: pointer;
+  font-weight: 600;
+  font-family: "DM Sans", sans-serif;
+  font-size: 13px;
+  letter-spacing: 0.4px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  transition:
+    background 0.18s ease,
+    transform 0.12s ease,
+    box-shadow 0.18s ease;
+  box-shadow: 0 2px 8px rgba(180, 148, 72, 0.3);
+}
+
+.btn:hover {
+  background: #9c7e38;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 14px rgba(180, 148, 72, 0.4);
+}
+
+.btn-back {
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  color: #d4c9b0;
+  box-shadow: none;
+}
+
+.btn-back:hover {
+  background: rgba(255, 255, 255, 0.14);
+  box-shadow: none;
+  transform: translateY(-1px);
+}
+
+/* --- 3. A4 Paper Shell --- */
+.a4-page {
+  width: 210mm;
+  min-height: 297mm;
+  background: #fffef9;
+  padding: 12mm 14mm 10mm;
+  box-sizing: border-box;
+  margin-bottom: 32px;
+  box-shadow:
+    0 2px 4px rgba(0, 0, 0, 0.04),
+    0 8px 32px rgba(0, 0, 0, 0.28),
+    0 0 0 1px rgba(255, 255, 255, 0.04);
+  display: flex;
+  flex-direction: column;
+  position: relative;
+  border-top: 5px solid #b49448;
+}
+
+/* --- Watermark Logo --- */
+.a4-watermark {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 320px;
+  height: 320px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  pointer-events: none;
+  z-index: 0;
+}
+
+.a4-watermark img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  opacity: 0.045;
+  filter: grayscale(100%);
+}
+
+/* Ensure all page content sits above watermark */
+.page-header,
+.table-wrapper,
+.footer-wrapper,
+.page-spacer {
+  position: relative;
+  z-index: 1;
+}
+
+/* --- 4. Header Section --- */
+.page-header {
+  margin-bottom: 16px;
+}
+
+.doc-title {
+  text-align: center;
+  font-family: "Playfair Display", serif;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 6px;
+  text-transform: uppercase;
+  color: #b49448;
+  margin: 0 0 14px 0;
+}
+
+.header-content {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 80px;
+}
+
+.logo-box {
+  position: absolute;
+  left: 0;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 90px;
+  height: 72px;
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+}
+
+.logo-box img {
+  max-width: 100%;
+  max-height: 100%;
+  object-fit: contain;
+}
+
+.no-logo {
+  font-family: "Playfair Display", serif;
+  font-size: 11px;
+  color: #b49448;
+  letter-spacing: 3px;
+  border: 1px dashed #b49448;
+  padding: 6px 10px;
+  border-radius: 2px;
+  opacity: 0.6;
+}
+
+.company-info-box {
+  text-align: center;
+  width: 100%;
+}
+
+.company-title {
+  font-family: "Playfair Display", serif;
+  font-size: 19px;
+  font-weight: 900;
+  color: #0f1a2e;
+  margin: 0 0 5px 0;
+  text-transform: uppercase;
+  letter-spacing: 1.5px;
+  line-height: 1.2;
+}
+
+.company-address,
+.company-contact {
+  font-family: "DM Sans", sans-serif;
+  font-size: 10.5px;
+  margin: 2px 0;
+  line-height: 1.5;
+  color: #4a4a4a;
+  font-weight: 400;
+}
+
+/* Decorative double rule */
+.header-divider {
+  margin: 12px 0;
+  height: 0;
+  border: none;
+  border-top: 2.5px solid #0f1a2e;
+  position: relative;
+}
+
+.header-divider::after {
+  content: "";
+  display: block;
+  height: 1px;
+  background: #b49448;
+  margin-top: 3px;
+}
+
+/* --- 5. Meta Grid (Bill To + Quote Data) --- */
+.meta-grid {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 22px;
+  align-items: flex-start;
+  gap: 20px;
+}
+
+.bill-to-col {
+  width: 55%;
+  font-size: 12px;
+  color: #1a1a1a;
+  font-family: "DM Sans", sans-serif;
+}
+
+.bill-to-col strong {
+  display: inline-block;
+  margin-bottom: 8px;
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: 3px;
+  text-transform: uppercase;
+  color: #b49448;
+  border-bottom: 1.5px solid #b49448;
+  padding-bottom: 3px;
+}
+
+.client-name {
+  display: block;
+  font-weight: 700;
+  font-size: 14px;
+  margin-bottom: 4px;
+  text-transform: uppercase;
+  color: #0f1a2e;
+  letter-spacing: 0.5px;
+}
+
+.client-addr {
+  display: block;
+  line-height: 1.6;
+  white-space: pre-wrap;
+  font-size: 11px;
+  color: #444;
+}
+
+/* --- 6. Quote Data Box --- */
+.quote-data-col {
+  width: 38%;
+  border: 1px solid #d4c9b0;
+  background: #fff;
+  display: flex;
+  flex-direction: column;
+  border-radius: 2px;
+  overflow: hidden;
+  box-shadow: 0 1px 6px rgba(0, 0, 0, 0.06);
+}
+
+.q-row {
+  display: flex;
+  border-bottom: 1px solid #e8e0ce;
+}
+
+.q-row:last-child {
+  border-bottom: none;
+}
+
+.q-lbl {
+  width: 115px;
+  flex-shrink: 0;
+  background: #f5f1e8;
+  padding: 7px 10px;
+  font-weight: 700;
+  font-size: 9.5px;
+  border-right: 1px solid #d4c9b0;
+  color: #3a3020;
+  display: flex;
+  align-items: center;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  font-family: "DM Sans", sans-serif;
+}
+
+.q-val {
+  flex: 1;
+  padding: 7px 10px;
+  font-weight: 600;
+  font-size: 11.5px;
+  color: #0f1a2e;
+  display: flex;
+  align-items: center;
+  font-family: "DM Sans", sans-serif;
+}
+
+.bold {
+  font-weight: 700;
+}
+
+/* --- 7. Data Table --- */
+.table-wrapper {
+  flex: 1;
+  margin-bottom: 18px;
+}
+
+.data-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 11.5px;
+  border: 1px solid #ccc4a8;
+  table-layout: fixed;
+  font-family: "DM Sans", sans-serif;
+}
+
+.data-table thead tr {
+  background: #0f1a2e;
+}
+
+.data-table th {
+  background: #0f1a2e !important;
+  color: #e8d99a !important;
+  padding: 9px 8px;
+  text-align: left;
+  font-weight: 600;
+  font-size: 9.5px;
+  border: 1px solid #253450;
+  text-transform: uppercase;
+  letter-spacing: 0.8px;
+  overflow: hidden;
+  white-space: nowrap;
+}
+
+.data-table tbody tr {
+  transition: background 0.1s;
+}
+
+.data-table tbody tr:nth-child(even) {
+  background-color: #faf8f2;
+}
+
+.data-table tbody tr:nth-child(odd) {
+  background-color: #fffef9;
+}
+
+.data-table td {
+  padding: 7px 8px;
+  border: 1px solid #ddd5bb;
+  vertical-align: top;
+  color: #1a1a1a !important;
+  overflow-wrap: anywhere;
+  word-wrap: break-word;
+  word-break: break-word;
+  line-height: 1.5;
+}
+
+.desc-cell {
+  white-space: pre-wrap;
+  font-size: 11px;
+  color: #2a2a2a !important;
+}
+
+.data-table .center {
+  text-align: center;
+}
+
+.data-table .right {
+  text-align: right;
+}
+
+.data-table .bold {
+  font-weight: 700;
+}
+
+/* --- 8. Footer --- */
+.footer-wrapper {
+  margin-top: auto;
+  font-family: "DM Sans", sans-serif;
+}
+
+.summary-split {
+  display: flex;
+  justify-content: space-between;
+  border: 1px solid #ccc4a8;
+  margin-bottom: 16px;
+  border-radius: 2px;
+  overflow: hidden;
+}
+
+.terms-left {
+  flex: 1;
+  padding: 12px 14px;
+  border-right: 1px solid #ccc4a8;
+  background: #faf8f2;
+}
+
+.terms-left h4 {
+  margin: 0 0 8px 0;
+  font-size: 9px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 2px;
+  color: #b49448;
+  font-family: "DM Sans", sans-serif;
+}
+
+.terms-left ul {
+  padding-left: 14px;
+  margin: 0;
+  font-size: 10.5px;
+  line-height: 1.7;
+  color: #2a2a2a;
+}
+
+.terms-left ul li {
+  margin-bottom: 2px;
+}
+
+.declaration {
+  margin-top: 10px;
+  font-size: 10px;
+  font-style: italic;
+  border-top: 1px solid #ddd5bb;
+  padding-top: 6px;
+  color: #666;
+}
+
+.totals-right {
+  width: 34%;
+  background: #fff;
+}
+
+.t-row {
+  display: flex;
+  justify-content: space-between;
+  padding: 7px 12px;
+  border-bottom: 1px solid #e8e0ce;
+  font-size: 11.5px;
+  color: #1a1a1a;
+  font-family: "DM Sans", sans-serif;
+}
+
+.t-row:last-child {
+  border-bottom: none;
+}
+
+.t-row span:first-child {
+  color: #555;
+  font-weight: 500;
+}
+
+.t-row span:last-child {
+  font-weight: 600;
+  color: #0f1a2e;
+}
+
+.t-row.total {
+  border-top: 2px solid #b49448;
+  font-weight: 900;
+  font-size: 13.5px;
+  background: #0f1a2e;
+}
+
+.t-row.total span:first-child,
+.t-row.total span:last-child {
+  color: #e8d99a;
+  font-weight: 700;
+}
+
+/* --- 9. Notes & Signature --- */
+.notes-sig-split {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+  margin-bottom: 12px;
+  padding: 12px 0 6px;
+  border-top: 1px solid #ddd5bb;
+}
+
+.notes-col {
+  width: 58%;
+  font-size: 10.5px;
+  color: #3a3a3a;
+  line-height: 1.6;
+  font-style: italic;
+}
+
+.notes-col strong {
+  font-style: normal;
+  font-weight: 700;
+  color: #b49448;
+  font-size: 9px;
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+  display: block;
+  margin-bottom: 4px;
+}
+
+.sig-col {
+  width: 34%;
+  text-align: right;
+  color: #1a1a1a;
+}
+
+.for-text {
+  font-size: 10px;
+  font-weight: 600;
+  color: #555;
+  margin-bottom: 36px;
+  letter-spacing: 0.3px;
+}
+
+.sig-gap {
+  border-bottom: 1px solid #888;
+  margin-bottom: 6px;
+}
+
+.auth-name {
+  font-weight: 700;
+  font-size: 11.5px;
+  color: #0f1a2e;
+}
+
+.auth-role {
+  font-size: 9.5px;
+  color: #666;
+  letter-spacing: 0.3px;
+}
+
+/* --- 10. Dealer Logos Footer --- */
+.dealers-footer {
+  text-align: center;
+  border-top: 1px solid #ddd5bb;
+  padding-top: 12px;
+  margin-top: 8px;
+}
+
+.dealers-footer h4 {
+  margin: 0 0 10px 0;
+  font-size: 8.5px;
+  text-transform: uppercase;
+  letter-spacing: 2.5px;
+  color: #b49448;
+  font-weight: 700;
+  font-family: "DM Sans", sans-serif;
+}
+
+.logos-line {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 28px;
+  flex-wrap: wrap;
+  padding: 0 10px;
+}
+
+.logos-line img {
+  height: 28px !important;
+  width: auto !important;
+  max-width: 90px;
+  object-fit: contain;
+  display: block;
+  filter: grayscale(20%);
+  opacity: 0.85;
+  transition: opacity 0.2s;
+}
+
+.logos-line img:hover {
+  opacity: 1;
+  filter: none;
+}
+
+/* --- 11. Loading Screen --- */
+.loading-screen {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 100vh;
+  font-family: "DM Sans", sans-serif;
+  font-size: 15px;
+  color: #b49448;
+  background: #1a1f2e;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+}
+
+/* --- 12. Page Continuation Note --- */
+.page-spacer p {
+  font-family: "DM Sans", sans-serif !important;
+  font-size: 9.5px !important;
+  color: #999 !important;
+  text-align: right;
+  margin-top: 12px;
+  font-style: italic;
+  letter-spacing: 0.3px;
+}
+
+/* --- 13. Preview Mode Badge --- */
+.action-bar div[style] {
+  font-family: "DM Sans", sans-serif;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  background: rgba(180, 148, 72, 0.12);
+  border: 1px solid rgba(180, 148, 72, 0.4);
+  color: #b49448 !important;
+  padding: 6px 14px;
+  border-radius: 3px;
+}
+
+/* --- 14. Print --- */
+@media print {
+  @page { size: A4 portrait; margin: 0mm !important; }
+  body * { visibility: hidden; }
+  #quotation-container-full,
+  #quotation-container-full * { visibility: visible; }
+  #quotation-container-full { position: absolute; left: 0; top: 0; width: 100%; }
+  .action-bar { display: none !important; }
+  .a4-page {
+    box-shadow: none !important;
+    margin: 0 !important;
+    page-break-after: always;
+    page-break-inside: avoid;
+  }
+  .a4-page:last-child { page-break-after: auto; }
+  * {
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+  }
+}

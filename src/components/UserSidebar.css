@@ -1,0 +1,234 @@
+/* Shared Sidebar Styles */
+
+/* --- 1. Container (Modern Dark Slate) --- */
+.sidebar-container {
+  background-color: #0f172a; /* ✨ Modern Deep Slate */
+  color: #e2e8f0;
+  height: 100vh;
+  height: 100dvh; /* Dynamic height for mobile */
+  display: flex;
+  flex-direction: column;
+  border-right: 1px solid #1e293b;
+  transition:
+    width 0.3s ease-in-out,
+    transform 0.3s ease-in-out;
+  flex-shrink: 0;
+  z-index: 50;
+  box-shadow: 4px 0 24px rgba(0, 0, 0, 0.2);
+}
+
+/* --- 2. Header & Logo --- */
+.sidebar-header {
+  height: 80px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between; /* Space between logo and toggle */
+  padding: 0 20px;
+  border-bottom: 1px solid #1e293b;
+  background-color: #0f172a;
+  overflow: hidden;
+}
+
+.logo-section {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  min-width: 0;
+  width: 100%;
+}
+
+.sidebar-logo {
+  height: 32px;
+  width: auto;
+  object-fit: contain;
+}
+
+.brand-text {
+  display: flex;
+  flex-direction: column;
+  white-space: nowrap;
+  opacity: 1;
+  transition: opacity 0.2s;
+}
+
+.brand-title {
+  margin: 0;
+  font-size: 16px;
+  font-weight: 800;
+  color: #f59e0b; /* Brand Orange */
+  letter-spacing: 0.5px;
+  line-height: 1;
+}
+
+.brand-subtitle {
+  font-size: 10px;
+  color: #64748b;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  margin-top: 2px;
+}
+
+/* --- 3. Toggle Button (Desktop) --- */
+.desktop-toggle {
+  background: #1e293b;
+  border: 1px solid #334155;
+  color: #94a3b8;
+  border-radius: 6px;
+  cursor: pointer;
+  padding: 4px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s;
+  flex-shrink: 0;
+}
+.desktop-toggle:hover {
+  background: #334155;
+  color: #fff;
+}
+
+/* --- 4. Navigation Links --- */
+.sidebar-nav {
+  flex: 1;
+  padding: 20px 10px;
+  overflow-y: auto;
+}
+
+.sidebar-link {
+  display: flex;
+  align-items: center;
+  padding: 12px 14px;
+  margin-bottom: 4px;
+  border-radius: 8px;
+  text-decoration: none;
+  color: #94a3b8; /* Muted text */
+  transition: all 0.2s ease;
+  white-space: nowrap;
+  overflow: hidden;
+}
+
+.sidebar-link:hover {
+  background-color: #1e293b;
+  color: #f8fafc;
+}
+
+/* Active State - Glow Effect */
+.sidebar-link.active {
+  background: linear-gradient(
+    90deg,
+    rgba(245, 158, 11, 0.15) 0%,
+    rgba(245, 158, 11, 0.05) 100%
+  );
+  color: #f59e0b;
+  border-left: 3px solid #f59e0b;
+  padding-left: 11px; /* Compensate for border */
+}
+
+.link-icon {
+  min-width: 24px;
+  display: flex;
+  justify-content: center;
+}
+
+.link-text {
+  margin-left: 12px;
+  font-size: 14px;
+  font-weight: 500;
+  transition: opacity 0.2s;
+}
+
+/* --- 5. Footer (Logout) --- */
+.sidebar-footer {
+  padding: 20px;
+  border-top: 1px solid #1e293b;
+}
+
+.logout-btn {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  background: transparent;
+  border: none;
+  color: #ef4444; /* Red for logout */
+  cursor: pointer;
+  padding: 10px;
+  border-radius: 8px;
+  transition: background 0.2s;
+  font-size: 14px;
+  font-weight: 600;
+  white-space: nowrap;
+  overflow: hidden;
+}
+
+.logout-btn:hover {
+  background-color: rgba(239, 68, 68, 0.1);
+}
+
+.logout-btn span {
+  margin-left: 12px;
+}
+
+/* --- 6. Mobile Responsiveness --- */
+.mobile-toggle-btn {
+  display: none;
+}
+
+.mobile-overlay {
+  display: none;
+}
+
+@media (max-width: 768px) {
+  .desktop-toggle {
+    display: none !important; /* Hide collapse button on mobile */
+  }
+
+  /* Floating Hamburger Button */
+  .mobile-toggle-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: fixed;
+    top: 15px;
+    left: 15px;
+    z-index: 1000;
+    background-color: #1e293b;
+    border: 1px solid #334155;
+    padding: 8px;
+    border-radius: 8px;
+    color: #f59e0b;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+    cursor: pointer;
+  }
+
+  /* Sidebar Drawer Mode */
+  .sidebar-container {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 260px !important; /* Force full width on mobile */
+    transform: translateX(-100%);
+    z-index: 1001; /* Above toggle button */
+  }
+
+  /* Open State */
+  .sidebar-container.mobile-open {
+    transform: translateX(0);
+  }
+
+  /* Backdrop Overlay */
+  .mobile-overlay {
+    display: block;
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.6);
+    backdrop-filter: blur(4px);
+    z-index: 1000;
+  }
+
+  /* Ensure header logos align well on mobile */
+  .sidebar-header {
+    justify-content: flex-start;
+    padding-left: 20px;
+  }
+}
