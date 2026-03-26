@@ -460,7 +460,7 @@ export default function QuotationPreview({
                   </div>
 
                   <div className="dealers-footer">
-                    <h4>AUTHORIZED DEALERS FOR:</h4>
+                    <h4>AUTHORIZED DISTRIBUTORS:</h4>
                     <div className="logos-line">
                       <img
                         src="/logos/brand3.png"
