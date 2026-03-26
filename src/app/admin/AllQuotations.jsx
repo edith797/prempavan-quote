@@ -12,8 +12,23 @@ import {
   Loader2,
   History,
   FilePlus,
+  Calendar, // ✅ Added Calendar Icon for FY Filter
 } from "lucide-react";
 import styles from "./AllQuotations.module.css";
+
+// ✅ Helper to calculate Financial Year from a Date string
+const getFinancialYear = (dateString) => {
+  if (!dateString) return "Unknown";
+  const date = new Date(dateString);
+  const month = date.getMonth(); // 0 = Jan, 3 = Apr
+  const year = date.getFullYear();
+
+  if (month >= 3) {
+    return `${year}-${year + 1}`; // April to December
+  } else {
+    return `${year - 1}-${year}`; // January to March
+  }
+};
 
 export default function AllQuotations() {
   const [quotes, setQuotes] = useState([]);
@@ -27,6 +42,9 @@ export default function AllQuotations() {
   const [filterUser, setFilterUser] = useState("");
   const [companySearchInput, setCompanySearchInput] = useState("");
   const [employeeSearchInput, setEmployeeSearchInput] = useState("");
+
+  // ✅ Added State for Financial Year Filter
+  const [selectedFY, setSelectedFY] = useState("");
 
   const navigate = useNavigate();
 
@@ -102,6 +120,15 @@ export default function AllQuotations() {
     e.full_name.toLowerCase().includes(employeeSearchInput.toLowerCase()),
   );
 
+  // ✅ Extract unique Financial Years for the dropdown
+  const uniqueFYs = useMemo(() => {
+    const fys = quotes
+      .map((q) => getFinancialYear(q.quotation_date))
+      .filter(Boolean);
+    return [...new Set(fys)].sort((a, b) => b.localeCompare(a)); // Descending order (Newest FY first)
+  }, [quotes]);
+
+  // ✅ Apply all filters (Search, Company, User, AND Financial Year)
   const filteredQuotes = quotes.filter((q) => {
     const matchesSearch = q.quotation_number
       .toLowerCase()
@@ -110,7 +137,12 @@ export default function AllQuotations() {
       ? q.companies?.company_name === selectedCompany
       : true;
     const matchesUser = filterUser ? q.created_by === filterUser : true;
-    return matchesSearch && matchesCompany && matchesUser;
+
+    // Check FY match
+    const qFY = getFinancialYear(q.quotation_date);
+    const matchesFY = selectedFY ? qFY === selectedFY : true;
+
+    return matchesSearch && matchesCompany && matchesUser && matchesFY;
   });
 
   const getStatusColor = (status) => {
@@ -135,7 +167,6 @@ export default function AllQuotations() {
     }
   };
 
-  // Shared dropdown container style
   const dropdownStyle = {
     position: "absolute",
     top: "100%",
@@ -171,7 +202,10 @@ export default function AllQuotations() {
         </div>
       </div>
 
-      <div className={styles.actionsBar}>
+      <div
+        className={styles.actionsBar}
+        style={{ display: "flex", flexWrap: "wrap", gap: "10px" }}
+      >
         {/* Quote Search */}
         <div className={styles.searchWrapper}>
           <Search size={16} className={styles.searchIcon} />
@@ -182,6 +216,30 @@ export default function AllQuotations() {
             onChange={(e) => setSearchTerm(e.target.value)}
             className={styles.searchInput}
           />
+        </div>
+
+        {/* ✅ Financial Year Filter */}
+        <div className={styles.filterWrapper}>
+          <Calendar size={15} className={styles.filterIcon} />
+          <select
+            value={selectedFY}
+            onChange={(e) => setSelectedFY(e.target.value)}
+            className={styles.filterSelect}
+            style={{
+              paddingLeft: "32px",
+              width: "100%",
+              boxSizing: "border-box",
+              cursor: "pointer",
+              appearance: "none", // Hide default dropdown arrow slightly for custom styling
+            }}
+          >
+            <option value="">All Financial Years</option>
+            {uniqueFYs.map((fy) => (
+              <option key={fy} value={fy}>
+                FY {fy}
+              </option>
+            ))}
+          </select>
         </div>
 
         {/* Company Filter */}
@@ -297,6 +355,7 @@ export default function AllQuotations() {
         <button
           onClick={() => navigate("/admin/quotations/new")}
           className={styles.createButton}
+          style={{ marginLeft: "auto" }}
         >
           <Plus size={16} style={{ marginRight: "6px" }} /> Create
         </button>
