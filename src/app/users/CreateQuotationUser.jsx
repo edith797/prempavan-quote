@@ -47,7 +47,6 @@ export default function CreateQuotationUser() {
   const [itemsMaster, setItemsMaster] = useState([]);
   const [isLoadingItems, setIsLoadingItems] = useState(true);
 
-  // Automatically grabbed from DB
   const [myEmployeeId, setMyEmployeeId] = useState("");
 
   const [validFor, setValidFor] = useState("ONE MONTH");
@@ -152,11 +151,12 @@ export default function CreateQuotationUser() {
         data: { user },
       } = await supabase.auth.getUser();
       if (user && isMounted) {
+        // ✅ FIX 1: maybeSingle() stops the red console 406 error!
         const { data: empRecord } = await supabase
           .from("employees")
           .select("id")
           .eq("user_id", user.id)
-          .single();
+          .maybeSingle();
         if (empRecord) setMyEmployeeId(empRecord.id);
       }
 
@@ -197,7 +197,6 @@ export default function CreateQuotationUser() {
           .from("items")
           .select("*", { count: "exact", head: true });
 
-        // ✅ BUG FIX: If count is 0, stop loading!
         if (!count) {
           if (isMounted) setIsLoadingItems(false);
           return;
@@ -248,11 +247,10 @@ export default function CreateQuotationUser() {
             JSON.stringify(cleanedItems),
           );
         } catch {
-          /* Ignore */
+          // Ignore
         }
       } catch (err) {
         console.error("Background fetch failed", err);
-        // ✅ BUG FIX: Stop loading even if there is an error
         if (isMounted) setIsLoadingItems(false);
       }
     }
@@ -315,8 +313,10 @@ export default function CreateQuotationUser() {
 
   function handleTriggerPreview() {
     if (!companyId) return alert("Please select a company");
-    if (!myEmployeeId)
-      return alert("System is loading your employee profile, please wait.");
+    if (isLoadingItems)
+      return alert("Please wait for items to load completely.");
+
+    // ✅ FIX 2: Removed the strict `if (!myEmployeeId)` lock here so you can preview!
 
     const selectedComp = companies.find((c) => c.id === companyId);
     let cgst = 0,
@@ -336,7 +336,7 @@ export default function CreateQuotationUser() {
         quotation_date: quotationDate,
         company_id: companyId,
         attn_person_name: attn,
-        authorised_signatory_id: myEmployeeId,
+        authorised_signatory_id: myEmployeeId || null, // Safely falls back if null
         valid_for: validFor,
         delivery_time: deliveryTime,
         payment_terms: paymentTerms,
@@ -359,8 +359,8 @@ export default function CreateQuotationUser() {
 
   async function executeRealSave() {
     if (!companyId) return alert("Please select a company");
-    if (!myEmployeeId)
-      return alert("Error: Employee profile not fully loaded yet.");
+
+    // ✅ FIX 3: Removed the strict `if (!myEmployeeId)` lock here so you can save!
 
     if (isSavingRef.current) return;
     isSavingRef.current = true;
@@ -414,7 +414,7 @@ export default function CreateQuotationUser() {
         quotation_date: quotationDate,
         company_id: companyId,
         attn_person_name: attn,
-        authorised_signatory_id: myEmployeeId,
+        authorised_signatory_id: myEmployeeId || null, // Safely falls back if null
         created_by: creatorToSave,
         valid_for: validFor,
         delivery_time: deliveryTime,
@@ -473,6 +473,7 @@ export default function CreateQuotationUser() {
         finalId = id;
         await supabase.from("quotation_items").delete().eq("quotation_id", id);
       } else {
+        // Auto Retry Logic
         let activeQuoteNo = quoteNo;
         let dbInsertError = null;
         let createdRecord = null;
@@ -489,9 +490,14 @@ export default function CreateQuotationUser() {
           if (error) {
             if (error.code === "23505") {
               const parts = activeQuoteNo.split("-");
-              if (parts.length === 2) {
-                let num = parseInt(parts[1], 10);
-                activeQuoteNo = `${parts[0]}-${String(num + 1).padStart(parts[1].length, "0")}`;
+              if (parts.length > 0) {
+                const lastPart = parts[parts.length - 1];
+                let num = parseInt(lastPart, 10);
+                parts[parts.length - 1] = String(num + 1).padStart(
+                  lastPart.length,
+                  "0",
+                );
+                activeQuoteNo = parts.join("-");
                 dbInsertError = error;
                 continue;
               }
@@ -822,7 +828,6 @@ export default function CreateQuotationUser() {
 
               return (
                 <tr key={idx}>
-                  {/* ✅ REMOVED disabled={isLoadingItems} */}
                   <td>
                     <input
                       list={`codes-${idx}`}
