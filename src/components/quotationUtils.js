@@ -56,3 +56,45 @@ export async function getNextQuotationNumber(supabase) {
     return `${prefix}001`;
   }
 }
+
+// Add this to the BOTTOM of src/components/quotationUtils.js
+
+export async function getNextPONumber(supabase) {
+  const today = new Date();
+  const month = today.getMonth(); 
+  const year = today.getFullYear();
+
+  let startYear, endYear;
+  if (month >= 3) {
+    startYear = year;
+    endYear = year + 1;
+  } else {
+    startYear = year - 1;
+    endYear = year;
+  }
+
+  const fyString = `${String(startYear).slice(-2)}${String(endYear).slice(-2)}`;
+  const prefix = `PO-${fyString}-`;
+
+  try {
+    const { data, error } = await supabase
+      .from("purchase_orders")
+      .select("po_number")
+      .ilike("po_number", `${prefix}%`)
+      .order("po_number", { ascending: false })
+      .limit(1);
+
+    if (error || !data || data.length === 0 || !data[0].po_number) {
+      return `${prefix}001`;
+    }
+
+    const parts = data[0].po_number.split("-");
+    const currentNumStr = parts[parts.length - 1]; 
+    const nextNum = parseInt(currentNumStr, 10) + 1;
+    
+    return `${prefix}${String(nextNum).padStart(3, "0")}`;
+  } catch (err) {
+    console.error("Error generating PO number:", err);
+    return `${prefix}001`;
+  }
+}

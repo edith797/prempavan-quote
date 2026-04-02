@@ -1,6 +1,8 @@
 import React, { useState, useEffect, useRef } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { supabase } from "../../lib/supabaseClient";
+// ✅ IMPORT THE NEW PO UTIL
+import { getNextPONumber } from "../../components/quotationUtils";
 import {
   Printer,
   Trash2,
@@ -121,11 +123,9 @@ export default function CreatePurchaseOrder() {
     let isMounted = true;
     if (!id) {
       const genNum = async () => {
-        const { count } = await supabase
-          .from("purchase_orders")
-          .select("*", { count: "exact", head: true });
-        if (isMounted)
-          setPoNumber(`PO-${String((count || 0) + 1).padStart(3, "0")}`);
+        // ✅ USES THE NEW FINANCIAL YEAR LOGIC FOR POs
+        const nextNum = await getNextPONumber(supabase);
+        if (isMounted) setPoNumber(nextNum);
       };
       genNum();
       return;
@@ -217,40 +217,77 @@ export default function CreatePurchaseOrder() {
   const handleSave = async () => {
     if (!selectedVendorId && !vendorDetails.name)
       return alert("Select a Vendor first.");
-    setLoading(true);
-    const {
-      data: { user },
-    } = await supabase.auth.getUser();
 
-    const poPayload = {
-      po_number: poNumber,
-      po_date: poDate,
-      vendor_id: selectedVendorId || null,
-      vendor_name: vendorDetails.name,
-      vendor_address: vendorDetails.address,
-      contact_person: contactPerson,
-      total_quantity: totalQty,
-      total_amount: totalAmount,
-      created_by: user?.id,
-    };
+    setLoading(true);
 
     try {
-      let savedId = id;
+      const {
+        data: { user },
+      } = await supabase.auth.getUser();
+
+      const poPayload = {
+        po_date: poDate,
+        vendor_id: selectedVendorId || null,
+        vendor_name: vendorDetails.name,
+        vendor_address: vendorDetails.address,
+        contact_person: contactPerson,
+        total_quantity: totalQty,
+        total_amount: totalAmount,
+        created_by: user?.id,
+      };
+
+      let finalSavedId = id;
+
       if (id) {
-        await supabase.from("purchase_orders").update(poPayload).eq("id", id);
+        // UPDATE EXISTING
+        await supabase
+          .from("purchase_orders")
+          .update({ ...poPayload, po_number: poNumber })
+          .eq("id", id);
         await supabase.from("purchase_order_items").delete().eq("po_id", id);
       } else {
-        const { data, error } = await supabase
-          .from("purchase_orders")
-          .insert([poPayload])
-          .select()
-          .single();
-        if (error) throw error;
-        savedId = data.id;
+        // ✅ NEW PO: Auto-Retry Loop to Fix Duplicate Keys!
+        let activePoNo = poNumber;
+        let dbInsertError = null;
+
+        for (let i = 0; i < 10; i++) {
+          const { data, error } = await supabase
+            .from("purchase_orders")
+            .insert([{ ...poPayload, po_number: activePoNo }])
+            .select()
+            .single();
+
+          if (error) {
+            if (error.code === "23505") {
+              // 409 Duplicate Key Detected
+              const parts = activePoNo.split("-");
+              if (parts.length > 0) {
+                const lastPart = parts[parts.length - 1];
+                let num = parseInt(lastPart, 10);
+                parts[parts.length - 1] = String(num + 1).padStart(
+                  lastPart.length,
+                  "0",
+                );
+                activePoNo = parts.join("-");
+                dbInsertError = error;
+                continue; // Retry with next number
+              }
+            }
+            throw error; // Other error, break out
+          }
+          finalSavedId = data.id;
+          dbInsertError = null;
+          break; // Success!
+        }
+
+        if (dbInsertError)
+          throw new Error(
+            "Failed to generate a unique PO number. Please try again.",
+          );
       }
 
       const itemsPayload = items.map((i) => ({
-        po_id: savedId,
+        po_id: finalSavedId,
         drg_no: i.drgNo,
         description: i.description,
         quotation_ref: i.quotationNo,
