@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState, useCallback } from "react";
+import { useEffect, useMemo, useState, useCallback, useRef } from "react";
 import { useNavigate, useParams, useLocation } from "react-router-dom";
 import { supabase } from "../../lib/supabaseClient";
 import { getNextQuotationNumber } from "../../components/quotationUtils";
@@ -32,7 +32,6 @@ export default function CreateQuotation() {
   const location = useLocation();
   const isEditMode = Boolean(id);
 
-  // ✅ PERFECT REVISE LOGIC (Reads from the routing state or local toggle)
   const [isReviseMode, setIsReviseMode] = useState(
     location.state?.isRevise || false,
   );
@@ -46,6 +45,8 @@ export default function CreateQuotation() {
   const [attn, setAttn] = useState("");
   const [modeOfEnquiry, setModeOfEnquiry] = useState("");
   const [saving, setSaving] = useState(false);
+  const isSavingRef = useRef(false);
+
   const [itemsMaster, setItemsMaster] = useState([]);
   const [employees, setEmployees] = useState([]);
   const [isLoadingItems, setIsLoadingItems] = useState(true);
@@ -136,7 +137,7 @@ export default function CreateQuotation() {
           .from("profiles")
           .select("role")
           .eq("id", user.id)
-          .single();
+          .maybeSingle();
         setUserRole(profile?.role);
       }
 
@@ -178,7 +179,10 @@ export default function CreateQuotation() {
         const { count } = await supabase
           .from("items")
           .select("*", { count: "exact", head: true });
-        if (!count) return;
+        if (!count) {
+          if (isMounted) setIsLoadingItems(false);
+          return;
+        }
 
         let allItems = [];
         const stepSize = 10000;
@@ -218,6 +222,7 @@ export default function CreateQuotation() {
         }
       } catch (err) {
         console.error("Background fetch failed", err);
+        if (isMounted) setIsLoadingItems(false);
       }
     }
 
@@ -317,12 +322,14 @@ export default function CreateQuotation() {
     setPreviewDraftData(draft);
   }
 
-  // ✅ PERFECTED DIRECT SAVE (Runs immediately, no preview required)
   async function executeRealSave() {
     if (!companyId) return alert("Select a company");
     if (!signatoryId) return alert("Please select an Authorised Signatory.");
     if (isReviseMode && userRole !== "ADMIN")
       return alert("Permission Denied: Only Admins can create revisions.");
+
+    if (isSavingRef.current) return;
+    isSavingRef.current = true;
 
     setPreviewDraftData(null);
     setSaving(true);
@@ -368,7 +375,6 @@ export default function CreateQuotation() {
       const creatorToSave = isEditMode ? originalCreatorId || user.id : user.id;
 
       const quoteData = {
-        quotation_number: quoteNo,
         quotation_date: quotationDate,
         company_id: companyId,
         attn_person_name: attn,
@@ -404,6 +410,7 @@ export default function CreateQuotation() {
           .insert([
             {
               ...quoteData,
+              quotation_number: quoteNo,
               revision_no: (oldQuote.revision_no || 0) + 1,
               parent_quotation_id: oldQuote.parent_quotation_id || oldQuote.id,
               created_by: oldQuote.created_by,
@@ -420,22 +427,67 @@ export default function CreateQuotation() {
           .eq("id", id);
         if (error) throw error;
         finalId = id;
-        await supabase.from("quotation_items").delete().eq("quotation_id", id);
+
+        // 🚨 SAFETY ALARM ADDED HERE (This fixes the duplicate item bug!)
+        const { error: deleteError } = await supabase
+          .from("quotation_items")
+          .delete()
+          .eq("quotation_id", id);
+        if (deleteError) {
+          throw new Error(
+            "Security Block: Supabase refused to delete the old items. Please run the SQL permission fix! Details: " +
+              deleteError.message,
+          );
+        }
       } else {
-        const { data: newQ, error } = await supabase
-          .from("quotations")
-          .insert([{ ...quoteData, revision_no: 0 }])
-          .select()
-          .single();
-        if (error) throw error;
-        finalId = newQ.id;
+        // ✅ AUTO-RETRY LOOP ADDED HERE (Prevents 409 Duplicate Key Bug!)
+        let activeQuoteNo = quoteNo;
+        let dbInsertError = null;
+        let createdRecord = null;
+
+        for (let i = 0; i < 10; i++) {
+          const { data, error } = await supabase
+            .from("quotations")
+            .insert([
+              { ...quoteData, quotation_number: activeQuoteNo, revision_no: 0 },
+            ])
+            .select()
+            .single();
+
+          if (error) {
+            if (error.code === "23505") {
+              const parts = activeQuoteNo.split("-");
+              if (parts.length > 0) {
+                const lastPart = parts[parts.length - 1];
+                let num = parseInt(lastPart, 10);
+                parts[parts.length - 1] = String(num + 1).padStart(
+                  lastPart.length,
+                  "0",
+                );
+                activeQuoteNo = parts.join("-");
+                dbInsertError = error;
+                continue;
+              }
+            }
+            throw error;
+          }
+          createdRecord = data;
+          dbInsertError = null;
+          break;
+        }
+
+        if (dbInsertError)
+          throw new Error(
+            "Failed to secure a unique Quote number. Please refresh.",
+          );
+        finalId = createdRecord.id;
       }
 
       const itemRows = items
         .filter((i) => i.description.trim() !== "")
         .map((item) => ({
           quotation_id: finalId,
-          item_code: item.item_code,
+          item_code: item.item_code || null,
           description: item.description,
           quantity: item.quantity,
           rate: item.rate,
@@ -443,13 +495,19 @@ export default function CreateQuotation() {
           amount: item.amount,
         }));
 
-      if (itemRows.length > 0)
-        await supabase.from("quotation_items").insert(itemRows);
+      if (itemRows.length > 0) {
+        const { error: insertError } = await supabase
+          .from("quotation_items")
+          .insert(itemRows);
+        if (insertError)
+          throw new Error("Failed to save items: " + insertError.message);
+      }
       navigate(`/admin/quotations/${finalId}`);
     } catch (err) {
       alert("Error saving: " + err.message);
     } finally {
       setSaving(false);
+      isSavingRef.current = false;
     }
   }
 
@@ -514,7 +572,6 @@ export default function CreateQuotation() {
           </span>
         </div>
 
-        {/* ✅ THE PERFECT ACTION BAR (Direct Save & Preview side-by-side) */}
         <div
           className={styles.actions}
           style={{ display: "flex", gap: "10px", alignItems: "center" }}
@@ -526,7 +583,6 @@ export default function CreateQuotation() {
             Cancel
           </button>
 
-          {/* This simply transforms the local screen into Revision Mode! No 404s! */}
           {isEditMode && currentRevisionNo < 1 && !isReviseMode && (
             <button
               onClick={() => setIsReviseMode(true)}
@@ -841,7 +897,6 @@ export default function CreateQuotation() {
         </div>
       </div>
 
-      {/* ✅ FLAWLESS FULLSCREEN PREVIEW OVERLAY */}
       {previewDraftData && (
         <div
           style={{

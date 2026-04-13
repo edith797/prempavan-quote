@@ -151,7 +151,6 @@ export default function CreateQuotationUser() {
         data: { user },
       } = await supabase.auth.getUser();
       if (user && isMounted) {
-        // ✅ FIX 1: maybeSingle() stops the red console 406 error!
         const { data: empRecord } = await supabase
           .from("employees")
           .select("id")
@@ -176,20 +175,6 @@ export default function CreateQuotationUser() {
         setItemsMaster(globalItemsCache);
         setIsLoadingItems(false);
         return;
-      }
-
-      try {
-        const savedCache = localStorage.getItem("erp_master_items");
-        if (savedCache) {
-          const parsedCache = JSON.parse(savedCache);
-          globalItemsCache = parsedCache;
-          if (isMounted) {
-            setItemsMaster(parsedCache);
-            setIsLoadingItems(false);
-          }
-        }
-      } catch {
-        console.warn("Local cache empty");
       }
 
       try {
@@ -239,15 +224,6 @@ export default function CreateQuotationUser() {
         if (isMounted) {
           setItemsMaster(cleanedItems);
           setIsLoadingItems(false);
-        }
-
-        try {
-          localStorage.setItem(
-            "erp_master_items",
-            JSON.stringify(cleanedItems),
-          );
-        } catch {
-          // Ignore
         }
       } catch (err) {
         console.error("Background fetch failed", err);
@@ -316,8 +292,6 @@ export default function CreateQuotationUser() {
     if (isLoadingItems)
       return alert("Please wait for items to load completely.");
 
-    // ✅ FIX 2: Removed the strict `if (!myEmployeeId)` lock here so you can preview!
-
     const selectedComp = companies.find((c) => c.id === companyId);
     let cgst = 0,
       sgst = 0,
@@ -336,7 +310,7 @@ export default function CreateQuotationUser() {
         quotation_date: quotationDate,
         company_id: companyId,
         attn_person_name: attn,
-        authorised_signatory_id: myEmployeeId || null, // Safely falls back if null
+        authorised_signatory_id: myEmployeeId || null,
         valid_for: validFor,
         delivery_time: deliveryTime,
         payment_terms: paymentTerms,
@@ -360,8 +334,6 @@ export default function CreateQuotationUser() {
   async function executeRealSave() {
     if (!companyId) return alert("Please select a company");
 
-    // ✅ FIX 3: Removed the strict `if (!myEmployeeId)` lock here so you can save!
-
     if (isSavingRef.current) return;
     isSavingRef.current = true;
 
@@ -372,6 +344,12 @@ export default function CreateQuotationUser() {
       const {
         data: { user },
       } = await supabase.auth.getUser();
+
+      if (!user) {
+        alert("Your session has expired. Please log in again.");
+        navigate("/login");
+        return;
+      }
 
       const newItemsToSave = [];
       items.forEach((row) => {
@@ -414,7 +392,7 @@ export default function CreateQuotationUser() {
         quotation_date: quotationDate,
         company_id: companyId,
         attn_person_name: attn,
-        authorised_signatory_id: myEmployeeId || null, // Safely falls back if null
+        authorised_signatory_id: myEmployeeId || null,
         created_by: creatorToSave,
         valid_for: validFor,
         delivery_time: deliveryTime,
@@ -471,9 +449,19 @@ export default function CreateQuotationUser() {
           .eq("id", id);
         if (error) throw error;
         finalId = id;
-        await supabase.from("quotation_items").delete().eq("quotation_id", id);
+
+        // 🚨 SAFETY ALARM ADDED HERE
+        const { error: deleteError } = await supabase
+          .from("quotation_items")
+          .delete()
+          .eq("quotation_id", id);
+        if (deleteError) {
+          throw new Error(
+            "Security Block: Supabase refused to delete the old items. Please run the SQL permission fix! Details: " +
+              deleteError.message,
+          );
+        }
       } else {
-        // Auto Retry Logic
         let activeQuoteNo = quoteNo;
         let dbInsertError = null;
         let createdRecord = null;
@@ -529,7 +517,13 @@ export default function CreateQuotationUser() {
         }));
 
       if (itemsToInsert.length > 0) {
-        await supabase.from("quotation_items").insert(itemsToInsert);
+        const { error: insertError } = await supabase
+          .from("quotation_items")
+          .insert(itemsToInsert);
+        if (insertError)
+          throw new Error(
+            "Failed to save the updated items: " + insertError.message,
+          );
       }
       navigate(`/user/quotations/${finalId}`);
     } catch (err) {
