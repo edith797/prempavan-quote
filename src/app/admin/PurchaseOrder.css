@@ -1,6 +1,5 @@
 /* ============================================================
    PURCHASE ORDER — Premium Professional Theme
-   Matches QuotationPreview aesthetic
    Font: Playfair Display (display) + DM Sans (body)
    Palette: Deep navy #0f1a2e, warm cream #fffef9, gold #b49448
    ============================================================ */
@@ -28,6 +27,7 @@
   display: flex;
   flex-direction: column;
   align-items: center;
+  overflow-x: auto; /* ✅ FIX 1: Allows horizontal scroll instead of clipping */
 }
 
 /* --- 2. Action Bar --- */
@@ -97,6 +97,7 @@
   background: #fffef9;
   width: 100%;
   max-width: 1100px;
+  min-width: 900px; /* ✅ FIX 2: Prevents paper from shrinking below readable width */
   padding: 36px 40px 32px;
   box-shadow:
     0 2px 4px rgba(0, 0, 0, 0.04),
@@ -108,6 +109,7 @@
   display: flex;
   flex-direction: column;
   font-family: "DM Sans", sans-serif;
+  box-sizing: border-box; /* ✅ FIX 3: Padding included in width calculation */
 }
 
 /* --- 4. Master Print Table --- */
@@ -215,6 +217,10 @@
   line-height: 1.5;
 }
 
+.po-title-section {
+  flex-shrink: 0; /* ✅ Prevents the title from being squished */
+}
+
 .po-title-section h2 {
   font-family: "Playfair Display", serif;
   font-size: 26px;
@@ -225,6 +231,7 @@
   color: #0f1a2e;
   letter-spacing: 2px;
   text-transform: uppercase;
+  white-space: nowrap; /* ✅ Prevents "PURCHASE ORDER" from wrapping weirdly */
 }
 
 /* --- 7. Info Grid --- */
@@ -310,6 +317,7 @@
 .po-table-container {
   margin-top: 20px;
   margin-bottom: 20px;
+  overflow-x: auto; /* ✅ Table scrolls independently if still too wide */
 }
 
 .po-table {
@@ -319,6 +327,7 @@
   table-layout: fixed;
   font-family: "DM Sans", sans-serif;
   border: 1px solid #ccc4a8;
+  min-width: 820px; /* ✅ Prevents columns from collapsing too narrow */
 }
 
 .po-table thead tr {
@@ -491,30 +500,119 @@
   text-transform: uppercase;
 }
 
-/* --- 11. Print Overrides --- */
+/* ============================================================
+   11. PRINT STYLES
+   ============================================================ */
 @media print {
-  .po-screen-container {
-    background: #fff !important;
-    padding: 0 !important;
+  @page {
+    size: landscape;
+    margin: 10mm;
   }
+
+  body * {
+    visibility: hidden;
+  }
+
+  .po-screen-container,
+  .po-screen-container * {
+    visibility: visible;
+  }
+
+  .po-screen-container {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    background: #fff !important;
+    background-image: none !important;
+    padding: 0 !important;
+    min-height: unset !important;
+    display: block !important;
+    align-items: unset !important;
+    overflow: visible !important;
+  }
+
   .po-paper {
     box-shadow: none !important;
+    max-width: none !important;
+    min-width: unset !important;
+    width: 100% !important;
+    padding: 10mm !important;
     border-top: 5px solid #b49448 !important;
     -webkit-print-color-adjust: exact;
     print-color-adjust: exact;
   }
+
+  .po-action-bar,
+  .no-print,
+  .po-add-row-btn,
+  .po-del-btn,
+  .vendor-search-container,
+  .search-icon {
+    display: none !important;
+    visibility: hidden !important;
+  }
+
+  .po-input {
+    border: none !important;
+    background: transparent !important;
+    box-shadow: none !important;
+    outline: none !important;
+    resize: none !important;
+    -webkit-appearance: none !important;
+    appearance: none !important;
+    color: #000 !important;
+    font-family: "DM Sans", sans-serif !important;
+  }
+
+  textarea.po-input {
+    overflow: visible !important;
+    height: auto !important;
+  }
+
+  .po-table-container {
+    overflow: visible !important;
+  }
+
+  .po-table {
+    min-width: unset !important;
+  }
+
   .po-table th {
     background: #0f1a2e !important;
     color: #e8d99a !important;
     -webkit-print-color-adjust: exact;
     print-color-adjust: exact;
   }
+
   .po-table tbody tr:nth-child(even) td {
     background-color: #faf8f2 !important;
     -webkit-print-color-adjust: exact;
     print-color-adjust: exact;
   }
-  .no-print {
-    display: none !important;
+
+  .po-section-title {
+    color: #b49448 !important;
+    border-bottom-color: #b49448 !important;
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+
+  .po-header::after {
+    background: #b49448 !important;
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+
+  .master-print-table > thead {
+    display: table-header-group;
+  }
+
+  .po-item-row {
+    page-break-inside: avoid !important;
+  }
+
+  .po-footer {
+    page-break-inside: avoid !important;
   }
 }

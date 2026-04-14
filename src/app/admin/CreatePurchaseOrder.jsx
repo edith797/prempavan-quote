@@ -1,7 +1,6 @@
 import React, { useState, useEffect, useRef } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { supabase } from "../../lib/supabaseClient";
-// ✅ IMPORT THE NEW PO UTIL
 import { getNextPONumber } from "../../components/quotationUtils";
 import {
   Printer,
@@ -23,7 +22,6 @@ export default function CreatePurchaseOrder() {
   const [settings, setSettings] = useState(null);
   const [vendors, setVendors] = useState([]);
 
-  // Search States
   const [vendorSearch, setVendorSearch] = useState("");
   const [showVendorList, setShowVendorList] = useState(false);
   const dropdownRef = useRef(null);
@@ -123,7 +121,6 @@ export default function CreatePurchaseOrder() {
     let isMounted = true;
     if (!id) {
       const genNum = async () => {
-        // ✅ USES THE NEW FINANCIAL YEAR LOGIC FOR POs
         const nextNum = await getNextPONumber(supabase);
         if (isMounted) setPoNumber(nextNum);
       };
@@ -239,14 +236,12 @@ export default function CreatePurchaseOrder() {
       let finalSavedId = id;
 
       if (id) {
-        // UPDATE EXISTING
         await supabase
           .from("purchase_orders")
           .update({ ...poPayload, po_number: poNumber })
           .eq("id", id);
         await supabase.from("purchase_order_items").delete().eq("po_id", id);
       } else {
-        // ✅ NEW PO: Auto-Retry Loop to Fix Duplicate Keys!
         let activePoNo = poNumber;
         let dbInsertError = null;
 
@@ -259,7 +254,6 @@ export default function CreatePurchaseOrder() {
 
           if (error) {
             if (error.code === "23505") {
-              // 409 Duplicate Key Detected
               const parts = activePoNo.split("-");
               if (parts.length > 0) {
                 const lastPart = parts[parts.length - 1];
@@ -270,14 +264,14 @@ export default function CreatePurchaseOrder() {
                 );
                 activePoNo = parts.join("-");
                 dbInsertError = error;
-                continue; // Retry with next number
+                continue;
               }
             }
-            throw error; // Other error, break out
+            throw error;
           }
           finalSavedId = data.id;
           dbInsertError = null;
-          break; // Success!
+          break;
         }
 
         if (dbInsertError)
@@ -310,60 +304,9 @@ export default function CreatePurchaseOrder() {
     }
   };
 
-  // --- PERFECT BROWSER PRINT LOGIC ---
+  // ✅ FIXED: Direct window.print() — no iframe, no blank page
   const handlePrint = () => {
-    const iframe = document.createElement("iframe");
-    iframe.style.visibility = "hidden";
-    iframe.style.position = "absolute";
-    iframe.style.right = "0";
-    iframe.style.bottom = "0";
-    document.body.appendChild(iframe);
-
-    const poContentHTML = document.getElementById("po-content").outerHTML;
-
-    const styles = Array.from(
-      document.querySelectorAll('link[rel="stylesheet"], style'),
-    )
-      .map((style) => style.outerHTML)
-      .join("");
-
-    const iframeDoc = iframe.contentWindow.document;
-    iframeDoc.open();
-    iframeDoc.write(`
-      <!DOCTYPE html>
-      <html>
-        <head>
-          <title>${poNumber}</title>
-          ${styles}
-          <style>
-            @page { size: landscape; margin: 10mm; }
-            body { background-color: #fff !important; margin: 0; padding: 0; font-family: 'Inter', sans-serif; }
-            #po-content { width: 100% !important; max-width: none !important; box-shadow: none !important; padding: 0 !important; }
-            .no-print, .vendor-search-container, [data-html2canvas-ignore="true"] { display: none !important; }
-            .po-input { border: none !important; background: transparent !important; color: #000 !important; resize: none !important; appearance: none !important; padding: 0 !important; font-size: 11px !important;}
-            .po-table { width: 100% !important; table-layout: fixed !important; border-collapse: collapse; }
-            .po-table th, .po-table td { border: 1px solid #000 !important; font-size: 10px !important; padding: 6px !important; }
-            .po-table th { background-color: #f1f5f9 !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; color: #000 !important; }
-            
-            /* GUARANTEE MULTI-PAGE REPEATING HEADERS */
-            .master-print-table { width: 100%; border-collapse: collapse; }
-            .master-print-table > thead { display: table-header-group; }
-            .master-print-table > tbody { display: table-row-group; }
-            .po-item-row { page-break-inside: avoid !important; }
-          </style>
-        </head>
-        <body>
-          ${poContentHTML}
-        </body>
-      </html>
-    `);
-    iframeDoc.close();
-
-    setTimeout(() => {
-      iframe.contentWindow.focus();
-      iframe.contentWindow.print();
-      setTimeout(() => document.body.removeChild(iframe), 1000);
-    }, 500);
+    window.print();
   };
 
   if (initialLoading)
@@ -398,12 +341,11 @@ export default function CreatePurchaseOrder() {
       </div>
 
       <div id="po-content" className="po-paper">
-        {/* MASTER TABLE: Repeats the Header on every page, but NOT the footer */}
         <table
           className="master-print-table"
           style={{ width: "100%", borderCollapse: "collapse", border: "none" }}
         >
-          {/* --- REPEATING HEADER --- */}
+          {/* REPEATING HEADER */}
           <thead>
             <tr>
               <td style={{ padding: 0, border: "none" }}>
@@ -445,7 +387,6 @@ export default function CreatePurchaseOrder() {
                     <div
                       className="vendor-search-container no-print"
                       ref={dropdownRef}
-                      data-html2canvas-ignore="true"
                       style={{ position: "relative" }}
                     >
                       <div
@@ -553,7 +494,7 @@ export default function CreatePurchaseOrder() {
             </tr>
           </thead>
 
-          {/* --- MULTI-PAGE BODY --- */}
+          {/* BODY */}
           <tbody>
             <tr>
               <td style={{ padding: 0, border: "none" }}>
@@ -582,11 +523,7 @@ export default function CreatePurchaseOrder() {
                         <th style={{ width: "12%", textAlign: "right" }}>
                           TOTAL
                         </th>
-                        <th
-                          className="no-print"
-                          data-html2canvas-ignore="true"
-                          style={{ width: "0%" }}
-                        ></th>
+                        <th className="no-print" style={{ width: "0%" }}></th>
                       </tr>
                     </thead>
                     <tbody>
@@ -713,10 +650,7 @@ export default function CreatePurchaseOrder() {
                               ? formatCurrency(calculateRowTotal(item))
                               : ""}
                           </td>
-                          <td
-                            className="no-print"
-                            data-html2canvas-ignore="true"
-                          >
+                          <td className="no-print">
                             <button
                               onClick={() => removeItem(item.id)}
                               className="po-del-btn"
@@ -728,11 +662,7 @@ export default function CreatePurchaseOrder() {
                       ))}
                     </tbody>
                   </table>
-                  <button
-                    onClick={addItem}
-                    className="po-add-row-btn no-print"
-                    data-html2canvas-ignore="true"
-                  >
+                  <button onClick={addItem} className="po-add-row-btn no-print">
                     + Add Item
                   </button>
                 </div>
@@ -741,7 +671,7 @@ export default function CreatePurchaseOrder() {
           </tbody>
         </table>
 
-        {/* --- NON-REPEATING FOOTER (Only prints on the final page) --- */}
+        {/* NON-REPEATING FOOTER */}
         <div className="po-footer">
           <div className="po-sign-section">
             <div className="po-sign-box">
