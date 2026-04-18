@@ -211,6 +211,13 @@ export default function CreatePurchaseOrder() {
     if (items.length > 1) setItems(items.filter((item) => item.id !== id));
   };
 
+  // Auto-expand textarea height without showing scrollbar arrows
+  const autoExpand = (e) => {
+    const el = e.target;
+    el.style.height = "auto";
+    el.style.height = el.scrollHeight + "px";
+  };
+
   const handleSave = async () => {
     if (!selectedVendorId && !vendorDetails.name)
       return alert("Select a Vendor first.");
@@ -304,7 +311,6 @@ export default function CreatePurchaseOrder() {
     }
   };
 
-  // ✅ FIXED: Direct window.print() — no iframe, no blank page
   const handlePrint = () => {
     window.print();
   };
@@ -544,9 +550,15 @@ export default function CreatePurchaseOrder() {
                             />
                           </td>
                           <td>
+                            {/*
+                              Key fix: textarea with NO scrollbar-producing props.
+                              - overflow: hidden removes scrollbars (and their arrows)
+                              - resize: none removes the resize gripper
+                              - style attribute overrides in case browser defaults leak through
+                            */}
                             <textarea
                               rows={1}
-                              className="po-input bold auto-expand"
+                              className="po-input bold"
                               value={item.description}
                               onChange={(e) =>
                                 handleItemChange(
@@ -555,11 +567,14 @@ export default function CreatePurchaseOrder() {
                                   e.target.value,
                                 )
                               }
-                              style={{ height: "auto", overflow: "hidden" }}
-                              onInput={(e) => {
-                                e.target.style.height = "auto";
-                                e.target.style.height =
-                                  e.target.scrollHeight + "px";
+                              onInput={autoExpand}
+                              style={{
+                                height: "auto",
+                                overflow: "hidden",
+                                resize: "none",
+                                scrollbarWidth: "none",
+                                msOverflowStyle: "none",
+                                display: "block",
                               }}
                             />
                           </td>
