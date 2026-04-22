@@ -6,9 +6,7 @@
 
 @import url("https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700;900&family=DM+Sans:wght@300;400;500;600;700&display=swap");
 
-/* ============================================================
-   GLOBAL: Hide spinners, date picker icon, textarea artifacts
-   ============================================================ */
+/* ── Kill spinners / date picker / textarea artifacts ── */
 input[type="number"]::-webkit-inner-spin-button,
 input[type="number"]::-webkit-outer-spin-button {
   -webkit-appearance: none !important;
@@ -18,24 +16,20 @@ input[type="number"]::-webkit-outer-spin-button {
   width: 0 !important;
   height: 0 !important;
 }
-
 input[type="number"] {
   -moz-appearance: textfield !important;
   appearance: textfield !important;
 }
-
 input[type="date"]::-webkit-calendar-picker-indicator {
   display: none !important;
   -webkit-appearance: none !important;
 }
-
-/* ── Hide ALL textarea scrollbars and resize handles ── */
 textarea {
   resize: none !important;
   -webkit-appearance: none !important;
   appearance: none !important;
-  scrollbar-width: none !important;       /* Firefox */
-  -ms-overflow-style: none !important;    /* IE/Edge */
+  scrollbar-width: none !important;
+  -ms-overflow-style: none !important;
 }
 textarea::-webkit-scrollbar {
   display: none !important;
@@ -51,12 +45,73 @@ textarea::-webkit-scrollbar-button {
   display: none !important;
 }
 
-/* --- 1. Screen Container --- */
+/* ============================================================
+   DUAL-LAYER CELL SYSTEM
+   ============================================================ */
+.cell-wrap {
+  position: relative;
+  width: 100%;
+}
+.print-val {
+  display: none;
+}
+
+.print-val {
+  font-family: "DM Sans", sans-serif;
+  font-size: 11px;
+  line-height: 1.6;
+  color: #0f1a2e;
+  padding: 4px 6px;
+  white-space: normal;
+  word-break: normal;
+  overflow-wrap: break-word;
+  width: 100%;
+  box-sizing: border-box;
+  background: transparent;
+  min-height: 22px;
+}
+.print-val.desc {
+  white-space: pre-wrap;
+  word-break: break-word;
+  font-weight: 700;
+}
+.print-val.bold {
+  font-weight: 700;
+}
+.print-val.mono {
+  font-family: "Courier New", monospace;
+  letter-spacing: 0.5px;
+}
+.print-val.right {
+  text-align: right;
+}
+.print-val.center {
+  text-align: center;
+}
+.print-val.nowrap {
+  white-space: nowrap;
+  word-break: normal;
+  overflow-wrap: normal;
+}
+.print-val.italic {
+  font-style: italic;
+  color: #64748b;
+}
+
+/* ── 1. Screen Container ── */
 .po-screen-container {
   background: #f4f3ee;
   background-image:
-    radial-gradient(ellipse at 20% 0%, rgba(180, 148, 72, 0.08) 0%, transparent 60%),
-    radial-gradient(ellipse at 80% 100%, rgba(30, 58, 100, 0.4) 0%, transparent 60%);
+    radial-gradient(
+      ellipse at 20% 0%,
+      rgba(180, 148, 72, 0.08) 0%,
+      transparent 60%
+    ),
+    radial-gradient(
+      ellipse at 80% 100%,
+      rgba(30, 58, 100, 0.4) 0%,
+      transparent 60%
+    );
   min-height: 100vh;
   padding: 48px 20px 64px;
   font-family: "DM Sans", sans-serif;
@@ -67,7 +122,7 @@ textarea::-webkit-scrollbar-button {
   overflow-x: auto;
 }
 
-/* --- 2. Action Bar --- */
+/* ── 2. Action Bar ── */
 .po-action-bar {
   width: 100%;
   max-width: 1100px;
@@ -79,7 +134,6 @@ textarea::-webkit-scrollbar-button {
   top: 10px;
   z-index: 50;
 }
-
 .po-btn {
   padding: 10px 20px;
   border-radius: 4px;
@@ -94,18 +148,15 @@ textarea::-webkit-scrollbar-button {
   transition: all 0.18s ease;
   border: none;
 }
-
 .po-btn-back {
   background: rgba(255, 255, 255, 0.08);
   border: 1px solid rgba(255, 255, 255, 0.15);
   color: #d4c9b0;
-  box-shadow: none;
 }
 .po-btn-back:hover {
   background: rgba(255, 255, 255, 0.14);
   transform: translateY(-1px);
 }
-
 .po-btn-save {
   background: #b49448;
   color: #fff;
@@ -116,20 +167,23 @@ textarea::-webkit-scrollbar-button {
   transform: translateY(-1px);
   box-shadow: 0 4px 14px rgba(180, 148, 72, 0.4);
 }
-
-.po-btn-print {
-  background: rgba(15, 26, 46, 0.9);
-  border: 1px solid rgba(180, 148, 72, 0.4);
-  color: #e8d99a;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+.po-btn-pdf {
+  background: #1a6b3c;
+  border: 1px solid rgba(34, 197, 94, 0.35);
+  color: #bbf7d0;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.25);
 }
-.po-btn-print:hover {
-  background: #0f1a2e;
+.po-btn-pdf:hover:not(:disabled) {
+  background: #155732;
   transform: translateY(-1px);
-  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.4);
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.35);
+}
+.po-btn-pdf:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
 }
 
-/* --- 3. Paper --- */
+/* ── 3. Paper ── */
 .po-paper {
   background: #fffef9;
   width: 100%;
@@ -149,7 +203,7 @@ textarea::-webkit-scrollbar-button {
   box-sizing: border-box;
 }
 
-/* --- 4. Master Print Table --- */
+/* ── 4. Master Print Table ── */
 .master-print-table {
   width: 100%;
   border-collapse: collapse;
@@ -162,7 +216,7 @@ textarea::-webkit-scrollbar-button {
   border: none;
 }
 
-/* --- 5. Inputs --- */
+/* ── 5. Inputs ── */
 .po-input {
   width: 100%;
   border: 1px solid transparent;
@@ -175,8 +229,9 @@ textarea::-webkit-scrollbar-button {
   border-radius: 3px;
   color: #0f1a2e;
   box-sizing: border-box;
-  transition: background 0.15s, border-color 0.15s;
-  /* Kill all browser default UI */
+  transition:
+    background 0.15s,
+    border-color 0.15s;
   -webkit-appearance: none;
   -moz-appearance: none;
   appearance: none;
@@ -190,13 +245,24 @@ textarea::-webkit-scrollbar-button {
   background: #fff;
   box-shadow: 0 0 0 2px rgba(180, 148, 72, 0.12);
 }
-.po-input.bold  { font-weight: 700; }
-.po-input.mono  { font-family: "Courier New", monospace; letter-spacing: 0.5px; }
-.po-input.right { text-align: right; }
-.po-input.center { text-align: center; }
-.po-input.italic { font-style: italic; color: #64748b; }
+.po-input.bold {
+  font-weight: 700;
+}
+.po-input.mono {
+  font-family: "Courier New", monospace;
+  letter-spacing: 0.5px;
+}
+.po-input.right {
+  text-align: right;
+}
+.po-input.center {
+  text-align: center;
+}
+.po-input.italic {
+  font-style: italic;
+  color: #64748b;
+}
 
-/* Textarea-specific overrides */
 textarea.po-input {
   overflow: hidden !important;
   resize: none !important;
@@ -206,11 +272,19 @@ textarea.po-input {
   min-height: 22px;
   display: block;
 }
-textarea.po-input::-webkit-scrollbar        { display: none !important; width: 0 !important; height: 0 !important; }
-textarea.po-input::-webkit-resizer          { display: none !important; }
-textarea.po-input::-webkit-scrollbar-button { display: none !important; }
+textarea.po-input::-webkit-scrollbar {
+  display: none !important;
+  width: 0 !important;
+  height: 0 !important;
+}
+textarea.po-input::-webkit-resizer {
+  display: none !important;
+}
+textarea.po-input::-webkit-scrollbar-button {
+  display: none !important;
+}
 
-/* --- 6. Header --- */
+/* ── 6. Header — NO yellow ::after line ── */
 .po-header {
   display: flex;
   justify-content: space-between;
@@ -220,16 +294,8 @@ textarea.po-input::-webkit-scrollbar-button { display: none !important; }
   border-bottom: 2.5px solid #0f1a2e;
   position: relative;
 }
-.po-header::after {
-  content: "";
-  display: block;
-  position: absolute;
-  bottom: -5px;
-  left: 0;
-  right: 0;
-  height: 1px;
-  background: #b49448;
-}
+
+/* REMOVED: .po-header::after — was causing the yellow line in PDF */
 
 .po-logo-section {
   display: flex;
@@ -240,7 +306,6 @@ textarea.po-input::-webkit-scrollbar-button { display: none !important; }
   max-height: 72px;
   object-fit: contain;
 }
-
 .po-company-info h1 {
   font-family: "Playfair Display", serif;
   font-size: 18px;
@@ -257,8 +322,9 @@ textarea.po-input::-webkit-scrollbar-button { display: none !important; }
   font-weight: 400;
   line-height: 1.5;
 }
-
-.po-title-section { flex-shrink: 0; }
+.po-title-section {
+  flex-shrink: 0;
+}
 .po-title-section h2 {
   font-family: "Playfair Display", serif;
   font-size: 26px;
@@ -272,29 +338,31 @@ textarea.po-input::-webkit-scrollbar-button { display: none !important; }
   white-space: nowrap;
 }
 
-/* --- 7. Info Grid --- */
+/* ── 7. Info Grid ── */
 .po-info-grid {
   display: grid;
   grid-template-columns: 1.2fr 0.8fr;
   gap: 40px;
   margin-bottom: 20px;
 }
-
 .po-section-title {
   font-size: 9px;
   font-weight: 700;
   letter-spacing: 2.5px;
   color: #b49448;
   text-transform: uppercase;
-  border-bottom: 1.5px solid #b49448;
+  /* NO border-bottom — removed to prevent yellow line in PDF */
   margin-bottom: 10px;
   padding-bottom: 4px;
   font-family: "DM Sans", sans-serif;
 }
-
-/* Vendor Search */
-.vendor-search-container { position: relative; margin-bottom: 8px; }
-.search-input-wrapper    { position: relative; }
+.vendor-search-container {
+  position: relative;
+  margin-bottom: 8px;
+}
+.search-input-wrapper {
+  position: relative;
+}
 .vendor-dropdown {
   position: absolute;
   top: 100%;
@@ -314,8 +382,9 @@ textarea.po-input::-webkit-scrollbar-button { display: none !important; }
   border-bottom: 1px solid #f5f1e8;
   transition: background 0.12s;
 }
-.vendor-option:hover { background-color: #faf8f2; }
-
+.vendor-option:hover {
+  background-color: #faf8f2;
+}
 .po-vendor-name {
   font-size: 14px;
   font-weight: 800;
@@ -329,7 +398,6 @@ textarea.po-input::-webkit-scrollbar-button { display: none !important; }
   line-height: 1.6;
   color: #555;
 }
-
 .po-detail-row {
   display: grid;
   grid-template-columns: 90px 1fr;
@@ -344,7 +412,7 @@ textarea.po-input::-webkit-scrollbar-button { display: none !important; }
   text-transform: uppercase;
 }
 
-/* --- 8. Table --- */
+/* ── 8. Table ── */
 .po-table-container {
   margin-top: 20px;
   margin-bottom: 20px;
@@ -360,8 +428,9 @@ textarea.po-input::-webkit-scrollbar-button { display: none !important; }
   border: 1px solid #ccc4a8;
   min-width: 820px;
 }
-
-.po-table thead tr { background: #0f1a2e; }
+.po-table thead tr {
+  background: #0f1a2e;
+}
 .po-table th {
   background: #0f1a2e !important;
   color: #e8d99a !important;
@@ -372,24 +441,36 @@ textarea.po-input::-webkit-scrollbar-button { display: none !important; }
   letter-spacing: 0.8px;
   border: 1px solid #253450;
   text-align: left;
+  white-space: nowrap;
   overflow: hidden;
+  text-overflow: ellipsis;
 }
-
-.po-table tbody tr:nth-child(even) { background-color: #faf8f2; }
-.po-table tbody tr:nth-child(odd)  { background-color: #fffef9; }
+.po-table tbody tr:nth-child(even) {
+  background-color: #faf8f2;
+}
+.po-table tbody tr:nth-child(odd) {
+  background-color: #fffef9;
+}
 .po-table td {
   border: 1px solid #ddd5bb;
   padding: 2px 3px;
   vertical-align: top;
   color: #1a1a1a;
   overflow: hidden;
+  white-space: normal;
+  word-break: normal;
 }
 
-.right  { text-align: right; }
-.bold   { font-weight: 700; }
-.center { text-align: center; }
+.right {
+  text-align: right;
+}
+.bold {
+  font-weight: 700;
+}
+.center {
+  text-align: center;
+}
 
-/* Delete button */
 .po-del-btn {
   background: none;
   border: none;
@@ -402,9 +483,10 @@ textarea.po-input::-webkit-scrollbar-button { display: none !important; }
   width: 100%;
   transition: color 0.15s;
 }
-.po-del-btn:hover { color: #ef4444; }
+.po-del-btn:hover {
+  color: #ef4444;
+}
 
-/* Add row button */
 .po-add-row-btn {
   width: 100%;
   padding: 8px;
@@ -419,14 +501,16 @@ textarea.po-input::-webkit-scrollbar-button { display: none !important; }
   border-radius: 3px;
   color: #b49448;
   font-family: "DM Sans", sans-serif;
-  transition: background 0.15s, border-color 0.15s;
+  transition:
+    background 0.15s,
+    border-color 0.15s;
 }
 .po-add-row-btn:hover {
   background: #f5f0e4;
   border-color: #b49448;
 }
 
-/* --- 9. Footer --- */
+/* ── 9. Footer ── */
 .po-footer {
   margin-top: 32px;
   display: flex;
@@ -435,8 +519,10 @@ textarea.po-input::-webkit-scrollbar-button { display: none !important; }
   border-top: 1px solid #ddd5bb;
   padding-top: 20px;
 }
-
-.po-sign-section { width: 180px; text-align: center; }
+.po-sign-section {
+  width: 180px;
+  text-align: center;
+}
 .po-sign-box {
   border-top: 1.5px solid #0f1a2e;
   padding-top: 8px;
@@ -457,9 +543,10 @@ textarea.po-input::-webkit-scrollbar-button { display: none !important; }
   color: #0f1a2e;
   letter-spacing: 0.5px;
 }
-
-/* Totals */
-.po-totals-box { display: flex; justify-content: flex-end; }
+.po-totals-box {
+  display: flex;
+  justify-content: flex-end;
+}
 .po-total-row {
   display: flex;
   justify-content: space-between;
@@ -468,7 +555,9 @@ textarea.po-input::-webkit-scrollbar-button { display: none !important; }
   border-bottom: 1px solid #e8e0ce;
   gap: 24px;
 }
-.po-total-row:last-child { border-bottom: none; }
+.po-total-row:last-child {
+  border-bottom: none;
+}
 .po-total-label {
   font-size: 10px;
   font-weight: 700;
@@ -481,7 +570,6 @@ textarea.po-input::-webkit-scrollbar-button { display: none !important; }
   font-weight: 600;
   color: #0f1a2e;
 }
-
 .po-grand-total {
   border-top: 2px solid #b49448;
   margin-top: 4px;
@@ -489,7 +577,10 @@ textarea.po-input::-webkit-scrollbar-button { display: none !important; }
   padding-top: 10px;
   background: transparent;
 }
-.po-grand-total .po-total-label { color: #0f1a2e; font-size: 11px; }
+.po-grand-total .po-total-label {
+  color: #0f1a2e;
+  font-size: 11px;
+}
 .po-grand-total .po-total-value {
   font-family: "Playfair Display", serif;
   font-size: 22px;
@@ -497,7 +588,7 @@ textarea.po-input::-webkit-scrollbar-button { display: none !important; }
   color: #0f1a2e;
 }
 
-/* --- 10. Loading --- */
+/* ── 10. Loading ── */
 .po-screen-container > div.p-10 {
   color: #b49448;
   font-family: "DM Sans", sans-serif;
@@ -507,66 +598,56 @@ textarea.po-input::-webkit-scrollbar-button { display: none !important; }
 }
 
 /* ============================================================
-   11. PRINT STYLES — Responsive for Portrait & Landscape
+   11. PRINT STYLES
    ============================================================ */
 @media print {
-  /* Let the user choose orientation in the print dialog */
   @page {
-    size: auto;
-    margin: 8mm 10mm;
-  }
-
-  /* Additional landscape-specific tweaks */
-  @page landscape {
+    size: A4 landscape;
     margin: 6mm 8mm;
   }
 
-  /* Reset html and body */
   html,
   body {
     background: #fff !important;
+    background-color: #fff !important;
+    background-image: none !important;
     margin: 0 !important;
     padding: 0 !important;
     height: auto !important;
-    overflow: visible !important;
+    min-height: 0 !important;
+    overflow: hidden !important;
   }
 
-  body * { visibility: hidden; }
+  body * {
+    visibility: hidden;
+  }
 
-  .po-screen-container,
-  .po-screen-container * { visibility: visible; }
+  #po-content,
+  #po-content * {
+    visibility: visible !important;
+  }
 
-  .po-screen-container {
-    position: fixed !important;
-    top: 0 !important;
+  #po-content {
+    position: absolute !important;
     left: 0 !important;
-    right: 0 !important;
-    bottom: 0 !important;
-    width: 100vw !important;
+    top: 0 !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    min-width: unset !important;
     height: auto !important;
-    z-index: 99999 !important;
+    min-height: 0 !important;
+    overflow: visible !important;
+    margin: 0 !important;
+    padding: 5mm 8mm 6mm !important;
+    box-shadow: none !important;
     background: #fff !important;
     background-image: none !important;
-    padding: 0 !important;
-    margin: 0 !important;
-    display: block !important;
-    overflow: visible !important;
-  }
-
-  .po-paper {
-    box-shadow: none !important;
-    max-width: none !important;
-    min-width: unset !important;
-    width: 100% !important;
-    padding: 6mm 8mm !important;
     border-top: 4px solid #b49448 !important;
-    background: #fff !important;
-    display: block !important;
+    box-sizing: border-box !important;
     -webkit-print-color-adjust: exact;
     print-color-adjust: exact;
   }
 
-  /* Hide all screen-only UI */
   .po-action-bar,
   .no-print,
   .po-add-row-btn,
@@ -577,144 +658,223 @@ textarea.po-input::-webkit-scrollbar-button { display: none !important; }
     visibility: hidden !important;
   }
 
-  /* Strip all input chrome */
+  .po-table td input,
+  .po-table td textarea {
+    display: none !important;
+    visibility: hidden !important;
+    position: absolute !important;
+    width: 0 !important;
+    height: 0 !important;
+  }
+
+  .print-val {
+    display: block !important;
+    visibility: visible !important;
+    font-family: "DM Sans", sans-serif !important;
+    font-size: 8pt !important;
+    line-height: 1.5 !important;
+    color: #000 !important;
+    padding: 2px 4px !important;
+    width: 100% !important;
+    box-sizing: border-box !important;
+    background: transparent !important;
+    border: none !important;
+    height: auto !important;
+    max-height: none !important;
+    min-height: 0 !important;
+    overflow: visible !important;
+  }
+  .print-val.desc {
+    white-space: pre-wrap !important;
+    word-break: break-word !important;
+    font-weight: 700 !important;
+  }
+  .print-val.nowrap {
+    white-space: nowrap !important;
+    word-break: normal !important;
+    overflow-wrap: normal !important;
+  }
+  .print-val.bold {
+    font-weight: 700 !important;
+  }
+  .print-val.mono {
+    font-family: "Courier New", monospace !important;
+  }
+  .print-val.right {
+    text-align: right !important;
+  }
+  .print-val.center {
+    text-align: center !important;
+  }
+  .print-val.italic {
+    font-style: italic !important;
+  }
+
   .po-input {
     border: none !important;
     background: transparent !important;
     box-shadow: none !important;
     outline: none !important;
     -webkit-appearance: none !important;
-    -moz-appearance: none !important;
     appearance: none !important;
     color: #000 !important;
-    font-family: "DM Sans", sans-serif !important;
     padding: 0 2px !important;
+    font-size: 8pt !important;
   }
 
-  /* Kill textarea artifacts completely in print */
   textarea,
   textarea.po-input {
     overflow: hidden !important;
     resize: none !important;
     height: auto !important;
-    -webkit-appearance: none !important;
-    appearance: none !important;
-    scrollbar-width: none !important;
-    display: block !important;
+    min-height: 0 !important;
   }
-  textarea::-webkit-scrollbar,
-  textarea.po-input::-webkit-scrollbar        { display: none !important; width: 0 !important; height: 0 !important; }
-  textarea::-webkit-resizer,
-  textarea.po-input::-webkit-resizer          { display: none !important; width: 0 !important; height: 0 !important; }
-  textarea::-webkit-scrollbar-button,
-  textarea.po-input::-webkit-scrollbar-button { display: none !important; }
 
-  /* Kill spinners */
   input[type="number"]::-webkit-inner-spin-button,
   input[type="number"]::-webkit-outer-spin-button {
-    -webkit-appearance: none !important;
-    appearance: none !important;
     display: none !important;
-    width: 0 !important;
-    height: 0 !important;
-    margin: 0 !important;
   }
-  input[type="number"] {
-    -moz-appearance: textfield !important;
-    appearance: textfield !important;
-  }
-
-  /* Kill date picker icon */
   input[type="date"]::-webkit-calendar-picker-indicator {
     display: none !important;
-    width: 0 !important;
-    height: 0 !important;
-    opacity: 0 !important;
   }
 
-  /* Table must not clip in print */
+  .po-header {
+    padding-bottom: 10px !important;
+    margin-bottom: 10px !important;
+  }
+
+  /* No yellow line in print either */
+  .po-header::after {
+    display: none !important;
+    content: none !important;
+  }
+  .po-section-title {
+    border-bottom: none !important;
+  }
+
+  .po-info-grid {
+    display: grid !important;
+    grid-template-columns: 1.2fr 0.8fr !important;
+    gap: 16px !important;
+    margin-bottom: 8px !important;
+  }
   .po-table-container {
+    margin-top: 8px !important;
+    margin-bottom: 8px !important;
     overflow: visible !important;
   }
+  .po-footer {
+    margin-top: 10px !important;
+    padding-top: 8px !important;
+  }
 
-  /* Responsive table: scale to fit any page width */
   .po-table {
     min-width: unset !important;
     table-layout: fixed !important;
     width: 100% !important;
-    font-size: 9pt !important;
+    font-size: 7.5pt !important;
+    border-collapse: collapse !important;
   }
-
-  /* Responsive header */
-  .po-company-info h1 { font-size: 14px !important; }
-  .po-title-section h2 { font-size: 20px !important; }
-
-  /* Adjust column widths for portrait (narrower) — browser handles landscape automatically */
-  .po-table th,
-  .po-table td {
-    overflow: visible !important;
-    word-break: break-word !important;
-    white-space: normal !important;
-    padding: 3px 4px !important;
-    font-size: 8.5pt !important;
-  }
-
-  /* Preserve branded colors */
   .po-table th {
+    padding: 5px 3px !important;
+    font-size: 7pt !important;
+    line-height: 1.3 !important;
     background: #0f1a2e !important;
     color: #e8d99a !important;
+    white-space: normal !important;
+    word-break: normal !important;
+    overflow: visible !important;
+    text-overflow: unset !important;
+    vertical-align: middle !important;
     -webkit-print-color-adjust: exact;
     print-color-adjust: exact;
   }
-
+  .po-table td {
+    padding: 2px 3px !important;
+    font-size: 7.5pt !important;
+    height: auto !important;
+    max-height: none !important;
+    overflow: visible !important;
+    white-space: normal !important;
+    word-break: normal !important;
+    vertical-align: top !important;
+  }
   .po-table tbody tr:nth-child(even) td {
     background-color: #faf8f2 !important;
     -webkit-print-color-adjust: exact;
     print-color-adjust: exact;
   }
+  .po-table th:nth-child(10),
+  .po-table td:nth-child(10) {
+    width: 10% !important;
+    min-width: 58px !important;
+  }
 
   .po-section-title {
     color: #b49448 !important;
-    border-bottom-color: #b49448 !important;
     -webkit-print-color-adjust: exact;
     print-color-adjust: exact;
   }
-
-  .po-header::after {
-    background: #b49448 !important;
-    -webkit-print-color-adjust: exact;
-    print-color-adjust: exact;
+  .po-company-info h1 {
+    font-size: 12px !important;
+  }
+  .po-title-section h2 {
+    font-size: 17px !important;
+  }
+  .po-company-info p {
+    font-size: 9px !important;
+    margin: 1px 0 !important;
+  }
+  .po-logo-box img {
+    max-height: 52px !important;
+  }
+  .po-vendor-name {
+    font-size: 12px !important;
+  }
+  .po-vendor-addr {
+    font-size: 9.5px !important;
+    line-height: 1.4 !important;
+  }
+  .po-label {
+    font-size: 8px !important;
+  }
+  .po-sign-box p {
+    font-size: 8px !important;
+  }
+  .po-sign-name {
+    font-size: 11px !important;
+  }
+  .po-total-label {
+    font-size: 8px !important;
+  }
+  .po-total-value {
+    font-size: 11px !important;
+  }
+  .po-total-row {
+    padding: 4px 0 !important;
+    width: 240px !important;
+  }
+  .po-grand-total .po-total-value {
+    font-size: 18px !important;
   }
 
-  /* Gold top border */
-  .po-paper {
-    border-top: 4px solid #b49448 !important;
-    -webkit-print-color-adjust: exact;
-    print-color-adjust: exact;
+  .master-print-table > thead {
+    display: table-header-group;
   }
-
-  /* Repeat company/vendor header on every page */
-  .master-print-table > thead { display: table-header-group; }
-
-  /* Repeat column headers on every page */
-  .po-table > thead { display: table-header-group; }
-
-  /* Never split a row across two pages */
+  .po-table > thead {
+    display: table-header-group;
+  }
   .po-item-row {
     page-break-inside: avoid !important;
     break-inside: avoid !important;
   }
-
-  /* Keep totals and signature together */
   .po-footer {
     page-break-inside: avoid !important;
     break-inside: avoid !important;
   }
 
-  /* Info grid: stack on portrait, side-by-side on landscape */
-  .po-info-grid {
-    display: grid !important;
-    grid-template-columns: 1.2fr 0.8fr !important;
-    gap: 20px !important;
+  * {
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
   }
 }
