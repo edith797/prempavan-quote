@@ -4,8 +4,8 @@ import { supabase } from "../../lib/supabaseClient";
 import html2pdf from "html2pdf.js";
 import "./QuotationPreview.css";
 
-// ✅ SAFE ITEM COUNT
-const ITEMS_PER_PAGE = 15;
+// 🚨 12 items fits perfectly on A4!
+const ITEMS_PER_PAGE = 12;
 
 export default function QuotationPreview({
   draftData,
@@ -85,7 +85,6 @@ export default function QuotationPreview({
               .single();
           }
 
-          // Force ascending to keep items in order
           const { data: qi } = await supabase
             .from("quotation_items")
             .select("*")
@@ -135,10 +134,9 @@ export default function QuotationPreview({
       p.style.marginBottom = "0px";
       p.style.boxShadow = "none";
       p.style.border = "none";
-      p.style.minHeight = "296.5mm";
-      p.style.height = "296.5mm";
-      p.style.overflow = "hidden";
     });
+
+    const expectedPageCount = pagesList.length;
 
     const options = {
       margin: 0,
@@ -155,32 +153,73 @@ export default function QuotationPreview({
             "https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700;900&family=DM+Sans:wght@300;400;500;600;700&display=swap";
           clonedDoc.head.appendChild(clonedLink);
 
-          clonedDoc.querySelectorAll(".a4-page").forEach((p) => {
+          clonedDoc.body.style.margin = "0";
+          clonedDoc.body.style.padding = "0";
+          
+          const clonedPages = clonedDoc.querySelectorAll(".a4-page");
+          
+          clonedPages.forEach((p, index) => {
+            p.style.display = "block";
+            p.style.position = "relative";
+            p.style.width = "210mm";
+            p.style.height = "296mm"; 
+            p.style.maxHeight = "296mm";
+            p.style.boxSizing = "border-box";
+            p.style.overflow = "hidden";
+            p.style.margin = "0";
+            p.style.padding = "10mm 12mm"; 
             p.style.borderTop = "5px solid #b49448";
+
+            // Tell CSS to page break normally
+            if (index < clonedPages.length - 1) {
+              p.style.pageBreakAfter = "always";
+            } else {
+              p.style.pageBreakAfter = "avoid";
+            }
+          });
+
+          clonedDoc.querySelectorAll(".footer-wrapper").forEach((el) => {
+            el.style.position = "absolute";
+            el.style.bottom = "10mm";
+            el.style.left = "12mm";
+            el.style.right = "12mm";
+            el.style.margin = "0";
+          });
+
+          clonedDoc.querySelectorAll(".page-spacer").forEach((el) => {
+            el.style.position = "absolute";
+            el.style.bottom = "10mm";
+            el.style.right = "12mm";
+            el.style.margin = "0";
+          });
+
+          clonedDoc.querySelectorAll(".data-table th, .data-table td").forEach((cell) => {
+            cell.style.padding = "5px 6px";
+            cell.style.fontSize = "10px";
+          });
+          clonedDoc.querySelectorAll(".desc-cell").forEach((cell) => {
+            cell.style.fontSize = "9.5px"; 
+          });
+          clonedDoc.querySelectorAll(".q-lbl, .q-val").forEach((cell) => {
+            cell.style.padding = "5px 8px";
           });
 
           clonedDoc.querySelectorAll(".data-table th").forEach((th) => {
             th.style.backgroundColor = "#0f1a2e";
             th.style.color = "#e8d99a";
           });
-
-          clonedDoc
-            .querySelectorAll(".data-table tbody tr")
-            .forEach((tr, i) => {
+          clonedDoc.querySelectorAll(".data-table tbody tr").forEach((tr, i) => {
               tr.style.backgroundColor = i % 2 === 0 ? "#fffef9" : "#faf8f2";
             });
-
           clonedDoc.querySelectorAll(".t-row.total").forEach((row) => {
             row.style.backgroundColor = "#0f1a2e";
             row.querySelectorAll("span").forEach((s) => {
               s.style.color = "#e8d99a";
             });
           });
-
           clonedDoc.querySelectorAll(".terms-left").forEach((el) => {
             el.style.backgroundColor = "#faf8f2";
           });
-
           clonedDoc.querySelectorAll(".q-lbl").forEach((el) => {
             el.style.backgroundColor = "#f5f1e8";
           });
@@ -189,20 +228,31 @@ export default function QuotationPreview({
         },
       },
       jsPDF: { unit: "mm", format: "a4", orientation: "portrait" },
+      pagebreak: { mode: ['css'] }
     };
 
+    // 🚨 THE MAGIC FIX: This dynamically intercepts the generated PDF
+    // and deletes any extra blank pages before downloading it to your computer!
     html2pdf()
       .set(options)
       .from(element)
+      .toPdf()
+      .get('pdf')
+      .then((pdf) => {
+        const totalPages = pdf.internal.getNumberOfPages();
+        // If the library spawned an extra blank page, delete it!
+        if (totalPages > expectedPageCount) {
+          for (let i = totalPages; i > expectedPageCount; i--) {
+            pdf.deletePage(i);
+          }
+        }
+      })
       .save()
       .then(() => {
         pagesList.forEach((p) => {
           p.style.marginBottom = "";
           p.style.boxShadow = "";
           p.style.border = "";
-          p.style.minHeight = "";
-          p.style.height = "";
-          p.style.overflow = "";
         });
         fontLink.remove();
       });
@@ -263,7 +313,6 @@ export default function QuotationPreview({
 
           return (
             <div className="a4-page" key={pageIndex}>
-              {/* ✅ Watermark logo — centered, very low opacity */}
               <div className="a4-watermark">
                 <img src="/company-logo.png" alt="" />
               </div>
@@ -295,7 +344,6 @@ export default function QuotationPreview({
 
                 <div className="header-divider"></div>
 
-                {/* Bill To - ONLY ON PAGE 1 */}
                 {isFirstPage && (
                   <div className="meta-grid">
                     <div className="bill-to-col">
@@ -314,7 +362,7 @@ export default function QuotationPreview({
                         <span className="q-lbl">Quotation No:</span>
                         <span
                           className="q-val bold"
-                          style={{ display: "flex", alignItems: "center" }}
+                          style={{ display: "flex", alignItems: "center", wordBreak: "break-all" }}
                         >
                           {quotation.quotation_number}
                           {quotation.revision_no > 0 && (
